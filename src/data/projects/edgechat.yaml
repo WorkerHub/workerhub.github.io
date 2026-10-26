@@ -1,0 +1,41 @@
+slug: edgechat
+name: EdgeChat
+repo: aozorae/Edgechat
+source: third-party
+tagline_zh: Cloudflare 上的团队聊天：实时消息、文件与 Telegram 桥接
+description_zh: >-
+  完全运行在 Cloudflare Workers 上的自部署团队聊天系统：实时消息、公开/私有频道与私信、文件与语音消息，
+  并支持 Telegram 双向桥接和两个独立部署站点共享同一群的跨实例互联。新消息正文与附件使用 AES-256-GCM
+  服务端静态加密，应用与数据资源都落在自己的 Cloudflare 账号下，由 GitHub Actions 自动部署与更新。
+  上游的在线演示站是纯前端界面模拟（API、WebSocket、文件上传均在浏览器内存中模拟，无真实后端）。
+features:
+  - 实时消息、公开/私有频道与私信，附件存 R2、会话状态存 KV
+  - Telegram 双向桥接：文字、图片、视频、语音、文件双向同步，TG 成员无需注册
+  - 新消息与附件 AES-256-GCM 服务端加密，密钥版本化并支持增量轮换
+  - 两个独立部署的 EdgeChat 可绑定同一个群，邀请码一次性、10 分钟有效
+  - 邀请制 + 精细封禁管控，GitHub Actions 自动部署并每日检查上游更新
+category: notification
+tags:
+  - 聊天
+  - 即时通讯
+  - Telegram
+  - 加密
+homepage: https://echat.azora.top
+docs_url: https://echat.azora.top/guide/getting-started.html
+deploy:
+  method: github-actions
+  guide_url: https://echat.azora.top/guide/getting-started.html
+resources:
+  - d1
+  - kv
+  - r2
+  - durable-objects
+difficulty: 3
+free_tier: partial
+pricing_note: >-
+  所有绑定的资源（D1 / KV / R2 / SQLite Durable Objects）都可以在免费额度内创建，上游未声明付费要求；
+  但免费计划的 Workers 请求数、Durable Objects 与 R2 额度对多人长期使用偏紧，团队规模较大时需评估用量。
+tier: listed
+featured: false
+added_at: 2026-10-26
+status: active

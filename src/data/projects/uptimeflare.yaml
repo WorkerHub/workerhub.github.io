@@ -1,0 +1,35 @@
+slug: uptimeflare
+name: UptimeFlare
+repo: lyc8503/UptimeFlare
+source: third-party
+tagline_zh: Workers 上的免费可用性监控与状态页，全球 310+ 城市节点
+description_zh: >-
+  由 Cloudflare Workers 驱动的 Serverless 可用性监控与状态页，全程无需本地工具，
+  按官方 Wiki 部署不到 10 分钟。最多可监控 50 个 1 分钟精度的检查项，可选全球 310+ 城市探测节点，
+  保留 90 天 uptime 历史与可用率；状态页带交互式响应时间图表，支持自定义域名与可选密码保护。
+features:
+  - 最多 50 个 1 分钟精度检查，可选全球 310+ 城市节点，支持 HTTP/HTTPS/TCP 端口监控
+  - 90 天 uptime 历史与可用率百分比统计
+  - 100+ 通知渠道（Apprise）与自定义 Webhook 告警
+  - 交互式响应时间图表的状态页，支持自有域名、亮/暗主题与可选密码保护
+  - 中英双语，并提供读取实时状态的 JSON API
+category: devops
+tags:
+  - 监控
+  - 状态页
+  - 告警
+  - 免费
+homepage: https://uptimeflare.pages.dev/
+docs_url: https://github.com/lyc8503/UptimeFlare/wiki/Setup
+deploy:
+  method: github-actions
+  guide_url: https://github.com/lyc8503/UptimeFlare/wiki/Setup
+resources:
+  - d1
+  - cron
+difficulty: 2
+free_tier: yes
+tier: listed
+featured: false
+added_at: 2026-10-26
+status: active
