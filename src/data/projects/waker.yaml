@@ -1,0 +1,32 @@
+slug: waker
+name: waker
+repo: WorkerHub/waker
+source: official
+tagline_zh: 定时调度平台：以一个 Cron 槽驱动全舰队定时任务
+description_zh: >-
+  waker 是开发中的定时调度平台：一个 Cron Trigger 槽驱动全舰队的定时任务。中央 Dispatcher Worker
+  每分钟触发一次，从注册表里读出已注册的 Worker 并逐个 POST 到各自 /cron/trigger 端点，
+  下游 Worker 只需声明自己的调度即可复用同一槽位。v1 以「即将推出」形态展示，暂不提供部署入口。
+features:
+  - 一个 Cron 槽跑多个定时任务，省掉账户级 cron 配额
+  - 下游 Worker 用 defineCronHandlers 声明调度，注册后由 Dispatcher 统一分发
+  - 注册表存放已注册 Worker，通过 CLI 命令注册与更新
+  - 开发中：上线后转为普通条目并开放部署入口
+category: devops
+tags:
+  - 定时任务
+  - Cron
+  - 调度
+docs_url: https://github.com/WorkerHub/waker
+deploy:
+  method: docs-only
+  guide_url: https://github.com/WorkerHub/waker
+resources:
+  - durable-objects
+  - queues
+difficulty: 2
+free_tier: yes
+tier: official
+featured: false
+added_at: 2026-10-26
+status: coming-soon

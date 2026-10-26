@@ -1,0 +1,30 @@
+slug: nav
+name: nav 导航
+repo: WorkerHub/nav
+source: official
+tagline_zh: hao123 式个人起始页：多引擎搜索 + 图标网格，公开/私有双层
+description_zh: >-
+  nav 是一个 hao123 式的个人起始页：中间是多引擎搜索框，下面是图标网格式的站点导航，
+  链接分公开与私有两层，公开层可分享、私有层登录后可见。后端是跑在 Workers 上的 Hono 服务，
+  数据存 D1，首次初始化通过 setup 流程按密钥完成。
+features:
+  - 多引擎搜索框 + 图标网格，适合当浏览器主页
+  - 公开 / 私有双层链接，私有层登录后可见
+  - Cloudflare 原生：Workers + D1，setup 流程完成首次初始化
+category: productivity
+tags:
+  - 导航
+  - 起始页
+  - 书签
+docs_url: https://github.com/WorkerHub/nav#部署
+deploy:
+  method: github-actions
+  guide_url: https://github.com/WorkerHub/nav#部署
+resources:
+  - d1
+difficulty: 2
+free_tier: yes
+tier: official
+featured: false
+added_at: 2026-10-26
+status: active

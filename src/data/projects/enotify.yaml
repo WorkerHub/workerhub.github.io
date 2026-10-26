@@ -1,0 +1,36 @@
+slug: enotify
+name: eNotify
+repo: WorkerHub/eNotify
+source: official
+tagline_zh: 智能通知与提醒系统：多渠道扇出、自定义提醒、对外通知 API
+description_zh: >-
+  eNotify 是自部署的智能通知管理台：把各类到期事项、订阅续费与提醒集中管理，并在到期前通过多个渠道推送提醒。
+  支持多用户、自动续费与支付历史、月度/年度支出统计，也提供 API Key 形式的对外通知接口，脚本或其他服务可
+  直接触发推送。整体跑在 Cloudflare Workers + D1 上，按文档配好 Secrets 后由 GitHub Actions 自动部署。
+features:
+  - 8 个通知渠道（Telegram / Webhook / 企业微信 / 邮件 / Bark / Slack / 飞书 / Discord），可按事项单独多选
+  - 周期与重置两种提醒模式，订阅到期自动续费并记录多币种支付历史
+  - 仪表盘：月度/年度支出统计、到期预警与分类分析
+  - 对外通知 API：用 API Key 触发推送，权限与创建者登录态一致
+  - TOTP / 邮箱验证码 / Passkey 三种二步验证，管理员后台，农历与中英双语
+category: notification
+tags:
+  - 提醒
+  - 通知
+  - 订阅管理
+  - 多渠道
+homepage: https://enotify.oneboy.app
+docs_url: https://github.com/WorkerHub/eNotify#部署指南
+deploy:
+  method: github-actions
+  guide_url: https://github.com/WorkerHub/eNotify#部署指南
+resources:
+  - d1
+  - kv
+  - cron
+difficulty: 2
+free_tier: yes
+tier: official
+featured: false
+added_at: 2026-10-26
+status: active

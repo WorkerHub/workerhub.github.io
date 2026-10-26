@@ -1,0 +1,35 @@
+slug: edgeever
+name: EdgeEver
+repo: tianma-if/edgeever
+source: third-party
+tagline_zh: Cloudflare 上的免费开源笔记库，印象笔记 / Obsidian 替代
+description_zh: >-
+  AI 原生知识库与笔记应用，定位为印象笔记 / Obsidian 的替代：经典三栏工作区、即时全文搜索、
+  多端秒级同步，并原生提供 MCP 供 AI 客户端读写笔记。整套服务可以免费跑在 Cloudflare 配额内，
+  也可以改用 Docker 自托管；官方覆盖 Web、macOS、Windows、Linux、iOS 与 Android 多端。
+features:
+  - 三栏工作区，面板宽度可调，富文本与 Markdown 双视图切换，含代码高亮与数学公式
+  - 多端秒级同步、无设备数量限制，原生 MCP 与侧边 AI 助手（BYOK）
+  - 浏览器划选剪藏、全格式附件上传、标签体系与无限层级笔记本
+  - 原生表格编辑与 Mermaid 图表、思维导图渲染
+  - Cloudflare 与 Docker 两条部署路线，官方附网页端分步部署文档
+category: productivity
+tags:
+  - 笔记
+  - 知识库
+  - 多端同步
+  - AI
+homepage: https://demo.edgeever.org
+docs_url: https://github.com/tianma-if/edgeever/blob/main/docs/deploy-cloudflare-button.zh-CN.md
+deploy:
+  method: git-integration
+  guide_url: https://github.com/tianma-if/edgeever/blob/main/docs/deploy-cloudflare-button.zh-CN.md
+resources:
+  - d1
+  - r2
+difficulty: 2
+free_tier: yes
+tier: listed
+featured: true
+added_at: 2026-10-26
+status: active
