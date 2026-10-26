@@ -10,7 +10,7 @@
  * 纯函数在这里（便于单测），git 调用在 scripts/check-pr-scope.ts。
  */
 
-/** 投稿标记：PR 描述出现即视为外部投稿 PR */
+/** 投稿标记：PR 描述中**单独占一行**时生效（模板把标记放在首行） */
 export const SUBMISSION_PR_MARKER = '<!-- hub-submission-pr -->';
 
 /** 允许的变更路径：数据文件与截图（§7 + §4.1 固定路径） */
@@ -20,7 +20,8 @@ export const ALLOWED_SUBMISSION_PATHS = [
 ] as const;
 
 export const isSubmissionPr = (body: string | undefined | null): boolean =>
-  typeof body === 'string' && body.toLowerCase().includes(SUBMISSION_PR_MARKER);
+  typeof body === 'string' &&
+  body.split(/\r?\n/).some((line) => line.trim().toLowerCase() === SUBMISSION_PR_MARKER);
 
 export const isAllowedSubmissionPath = (path: string): boolean =>
   ALLOWED_SUBMISSION_PATHS.some((pattern) => pattern.test(path));

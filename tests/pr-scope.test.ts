@@ -12,9 +12,18 @@ import {
 
 test('§7 带投稿标记的 PR 视为投稿 PR', () => {
   assert.equal(isSubmissionPr(`## 说明\n\n${SUBMISSION_PR_MARKER}\n\n- [x] 开源`), true);
+  assert.equal(isSubmissionPr(`${SUBMISSION_PR_MARKER}`), true);
+  assert.equal(isSubmissionPr(`  ${SUBMISSION_PR_MARKER}  `), true);
   assert.equal(isSubmissionPr(`无标记的代码 PR`), false);
   assert.equal(isSubmissionPr(undefined), false);
   assert.equal(isSubmissionPr(null), false);
+});
+
+test('§7 仅提及投稿标记（行内引用、说明又一个标记）不触发投稿范围检查', () => {
+  // 维护者在 PR 里解释模板时会把标记写进行内代码/句子，不应因此被当成投稿 PR
+  assert.equal(isSubmissionPr(`首行 \`${SUBMISSION_PR_MARKER}\` 是投稿标记`), false);
+  assert.equal(isSubmissionPr(`标记写法：${SUBMISSION_PR_MARKER} 放在首行`), false);
+  assert.equal(isSubmissionPr(`<!-- hub-submission-pr --> 行内追加说明`), false);
 });
 
 test('§7 投稿允许的路径：数据文件与截图', () => {
