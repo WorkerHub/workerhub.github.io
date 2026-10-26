@@ -4,7 +4,7 @@ Cloudflare Workers 生态的中文精选应用目录：官方自研项目 + 经�
 
 **本站是纯静态站点**：无后端、无数据库、无鉴权、无站点级 secret（SPEC v1.4 §0 明示例外项）。构建产物是纯静态 HTML，同时发布到主站 `hub.oneboy.app`（Cloudflare Pages）与镜像 `workerhub.github.io`（GitHub Pages），canonical 恒写主域名。
 
-> 本仓库当前处于 S1-A 阶段：脚手架 + 数据管线（schema 校验 + GitHub 自动字段抓取 + 缓存降级）。正式页面与组件、内容数据、投稿基建、双线部署分属后续子单，见文末「范围」。
+> 本仓库当前处于 S1-A + S2-B 阶段：脚手架、数据管线（schema 校验 + GitHub 自动字段抓取 + 缓存降级）、投稿基建（CONTRIBUTING / PR 模板 / 投稿数据校验）。正式页面与组件、内容数据、双线部署分属后续子单，见文末「范围」。
 
 ## 技术栈（SPEC §8.1）
 
