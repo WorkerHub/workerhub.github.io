@@ -1,0 +1,106 @@
+name: CI
+
+# 本工作流只做校验，不做发布：部署（CF Pages / GitHub Pages）由部署子单落地。
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: 校验与构建
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # git describe 注入页脚版本号需要完整历史
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+
+      - name: 数据文件 schema 校验（§4.1 / §7：非法数据直接失败并点名字段）
+        run: pnpm validate:data
+
+      - name: Lint 与类型检查
+        run: pnpm lint
+
+      - name: 测试（含降级演练与 schema 守卫）
+        run: pnpm test
+        env:
+          # 只读公开数据足够；不要求、也不允许任何 PAT 入仓（§9.2）
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 构建（§9.1：一条命令产出 dist/）
+        run: pnpm build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 构建产物检查
+        run: |
+          test -f dist/index.html
+          echo "dist/index.html 已生成"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist
+          retention-days: 7
+
+  drills:
+    name: 降级与守卫演练
+    runs-on: ubuntu-latest
+    needs: checks
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: 演练 1｜GitHub API 不可达 + 无缓存 → 站点仍构建成功（§12 第 3 条）
+        run: |
+          GITHUB_API_BASE=http://127.0.0.1:9 \
+          HUB_PROJECTS_DIR=tests/fixtures/projects-run \
+          HUB_META_CACHE=tests/.tmp/drill-cache.json \
+          HUB_META_REPORT=tests/.tmp/drill-report.json \
+          pnpm build
+          test -f dist/index.html
+          grep -q '"degradedToEmpty": 2' tests/.tmp/drill-report.json
+          echo "降级演练通过：自动字段置空、页面正常产出"
+
+      - name: 演练 2｜非法数据必须让构建失败（§12 第 1 条）
+        run: |
+          mkdir -p tests/.tmp/bad-projects
+          sed -e 's/category: devops/category: not-a-category/' \
+              -e 's/slug: example-listed/slug: bad-one/' \
+              tests/fixtures/projects/example-listed.yaml > tests/.tmp/bad-projects/bad-one.yaml
+          if HUB_SKIP_FETCH=1 HUB_PROJECTS_DIR=tests/.tmp/bad-projects pnpm build; then
+            echo "::error::非法数据竟然构建成功了，schema 守卫失效"
+            exit 1
+          fi
+          echo "守卫演练通过：非法数据构建失败"

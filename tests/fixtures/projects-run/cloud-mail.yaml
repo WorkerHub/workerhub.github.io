@@ -1,0 +1,25 @@
+# 演练夹具：真实 public 仓库，用于验证多仓库抓取与缓存写回。
+slug: cloud-mail
+name: Cloud Mail Fixture
+repo: maillab/cloud-mail
+source: third-party
+tagline_zh: 抓取演练用夹具条目，指向真实 public 仓库。
+description_zh: 第一条说明句。第二条说明句。
+features:
+  - 特性一
+  - 特性二
+  - 特性三
+tags:
+  - fixture
+category: email
+deploy:
+  method: github-actions
+resources:
+  - d1
+  - kv
+  - r2
+difficulty: 3
+free_tier: partial
+pricing_note: 免费层受 Workers 与 R2 额度限制。
+tier: listed
+added_at: 2026-10-26

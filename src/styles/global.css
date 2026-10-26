@@ -1,0 +1,8 @@
+@import 'tailwindcss';
+
+/* 占位样式：正式设计体系与主题三档（§3B/§8.3）由 S2-A 页面组件子单落地 */
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+  }
+}

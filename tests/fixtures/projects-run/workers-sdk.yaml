@@ -1,0 +1,22 @@
+# 演练夹具：真实 public 仓库，用于验证抓取成功路径。文案是测试用占位，不是正式内容。
+slug: workers-sdk
+name: Workers SDK Fixture
+repo: cloudflare/workers-sdk
+source: third-party
+tagline_zh: 抓取演练用夹具条目，指向真实 public 仓库。
+description_zh: 第一条说明句。第二条说明句。
+features:
+  - 特性一
+  - 特性二
+  - 特性三
+tags:
+  - fixture
+category: devops
+deploy:
+  method: wrangler
+resources:
+  - workers-only
+difficulty: 2
+free_tier: yes
+tier: listed
+added_at: 2026-10-26
