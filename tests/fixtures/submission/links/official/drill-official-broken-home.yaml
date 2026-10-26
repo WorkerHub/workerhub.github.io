@@ -1,0 +1,23 @@
+# 演练夹具：官方项目的 homepage（演示站）不可达 → §7 要求 CI 硬拦
+slug: drill-official-broken-home
+name: Drill Official Broken Home
+repo: WorkerHub/hub-drill-official
+source: official
+tagline_zh: 演练用官方条目，演示站地址不可达。
+description_zh: 第一条说明句。第二条说明句。
+features:
+  - 特性一
+  - 特性二
+  - 特性三
+tags:
+  - drill
+category: notification
+homepage: http://127.0.0.1:9/demo
+deploy:
+  method: docs-only
+resources:
+  - d1
+difficulty: 2
+free_tier: yes
+tier: official
+added_at: 2026-10-26

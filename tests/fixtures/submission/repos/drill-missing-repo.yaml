@@ -1,0 +1,22 @@
+# 演练夹具：repo 指向一个不存在的仓库 → §7 要求 CI 硬拦
+slug: drill-missing-repo
+name: Drill Missing Repo
+repo: WorkerHub/hub-drill-repo-does-not-exist
+source: third-party
+tagline_zh: 演练用条目，仓库在 GitHub 上并不存在。
+description_zh: 第一条说明句。第二条说明句。
+features:
+  - 特性一
+  - 特性二
+  - 特性三
+tags:
+  - drill
+category: devops
+deploy:
+  method: wrangler
+resources:
+  - workers-only
+difficulty: 1
+free_tier: yes
+tier: listed
+added_at: 2026-10-26
