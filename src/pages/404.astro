@@ -1,0 +1,31 @@
+---
+/**
+ * 404（SPEC §2：回首页与全部项目的入口，不做花哨页）。
+ */
+import BaseLayout from '@/layouts/base-layout.astro';
+import { Button } from '@/components/ui/button';
+import { SITE } from '@/lib/site';
+---
+
+<BaseLayout
+  title={`页面不存在 | ${SITE.name}`}
+  description="没有找到这个页面：可能链接已失效或项目已下架。"
+  noindex
+>
+  <div class="mx-auto flex w-full max-w-2xl flex-col items-start px-4 py-24 sm:px-6">
+    <p class="font-mono text-sm text-muted-foreground">404</p>
+    <h1 class="mt-2 text-3xl font-semibold tracking-tight">这个页面不存在</h1>
+    <p class="mt-3 text-sm leading-7 text-muted-foreground">
+      链接可能已失效，或者对应的项目已经下架。下架的项目会返回真实
+      404，其记录不再出现在列表与「最新收录」中。
+    </p>
+    <div class="mt-6 flex flex-wrap gap-2">
+      <Button asChild>
+        <a href="/">回到首页</a>
+      </Button>
+      <Button asChild variant="outline">
+        <a href="/projects/">浏览全部项目</a>
+      </Button>
+    </div>
+  </div>
+</BaseLayout>

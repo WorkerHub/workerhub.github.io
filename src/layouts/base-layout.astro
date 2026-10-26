@@ -1,0 +1,117 @@
+---
+/**
+ * 全站基础布局：SEO/分享元数据、主题防闪烁、页头页脚、无障碍跳转。
+ *
+ * SPEC §10 硬性：canonical / og:url 恒写主域名 `https://hub.oneboy.app`，镜像侧也不按访问域名动态生成
+ * —— 这里只从 `src/lib/site.ts` 的常量拼绝对地址，从不读 `Astro.url.host`。
+ */
+import '../styles/global.css';
+
+import SiteFooter from '@/components/site/site-footer.astro';
+import SiteHeader from '@/components/site/site-header.astro';
+import { absoluteUrl, SITE } from '@/lib/site';
+
+export interface Props {
+  /** 完整 <title>（页面自己拼好，详情页模板见 §10） */
+  title: string;
+  description: string;
+  /** OG/Twitter 分享图（主域名绝对地址）；缺省用站点级 OG 图 */
+  ogImage?: string;
+  ogType?: 'website' | 'article';
+  /** 站内路径，缺省取当前页 pathname；用于 canonical / og:url */
+  canonicalPath?: string;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  ogImage = absoluteUrl('/og/og-default.png'),
+  ogType = 'website',
+  canonicalPath,
+  noindex = false,
+} = Astro.props;
+
+const canonical = absoluteUrl(canonicalPath ?? Astro.url.pathname);
+
+// 统计默认不接入；仅当配置了 token 才注入 Cloudflare Web Analytics（无 cookie，§10）
+const analyticsToken = import.meta.env.HUB_CF_ANALYTICS_TOKEN ?? process.env.HUB_CF_ANALYTICS_TOKEN;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    {/*
+      主题三档首屏防闪烁（§3B/§8.3）：这段内联脚本必须同步执行、且早于样式与绘制。
+      与 ThemeToggle island 的 applyTheme() 规则完全一致：dark class + color-scheme。
+    */}
+    <script is:inline>
+      (function () {
+        try {
+          var stored = window.localStorage.getItem('hub-theme');
+          var mode = stored === 'light' || stored === 'dark' ? stored : 'system';
+          var dark =
+            mode === 'dark' ||
+            (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          var root = document.documentElement;
+          root.classList.toggle('dark', dark);
+          root.style.colorScheme = dark ? 'dark' : 'light';
+          root.dataset.themeMode = mode;
+        } catch (error) {
+          /* localStorage 不可用时按自动档渲染，不阻塞首屏 */
+        }
+      })();
+    </script>
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0a" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap.xml" />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:locale" content={SITE.locale} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    {analyticsToken && (
+      <script
+        is:inline
+        defer
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={JSON.stringify({ token: analyticsToken })}
+      />
+    )}
+  </head>
+  <body class="flex min-h-screen flex-col">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-sm focus:text-primary-foreground"
+    >
+      跳到主要内容
+    </a>
+
+    <SiteHeader />
+
+    <main id="main" class="flex-1">
+      <slot />
+    </main>
+
+    <SiteFooter />
+  </body>
+</html>

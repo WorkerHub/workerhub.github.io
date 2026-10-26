@@ -1,8 +1,230 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
 
-/* 占位样式：正式设计体系与主题三档（§3B/§8.3）由 S2-A 页面组件子单落地 */
+/*
+ * WorkerHub hub · 设计令牌（shadcn/ui Nova 风格）
+ * SPEC §3B / §8.3：主题亮/暗/自动三档，默认自动，首屏绘制前应用防闪烁（见 BaseLayout 内联脚本）。
+ * 颜色统一走 CSS 变量 + `@theme inline`，组件只用语义 token（bg-background / text-muted-foreground …），
+ * 不写裸色值，暗色模式才可能保持一致。
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --radius: 0.625rem;
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+
+  /* 验证等级徽章（§6.2：金 / 绿 / 灰；永远带文字，不只靠颜色） */
+  --tier-official-bg: oklch(0.973 0.071 95.6);
+  --tier-official-fg: oklch(0.476 0.114 61.9);
+  --tier-official-border: oklch(0.879 0.169 91.6);
+  --tier-verified-bg: oklch(0.962 0.044 156.7);
+  --tier-verified-fg: oklch(0.448 0.119 151.3);
+  --tier-verified-border: oklch(0.871 0.15 154.4);
+  --tier-listed-bg: oklch(0.97 0.001 286.4);
+  --tier-listed-fg: oklch(0.442 0.014 285.8);
+  --tier-listed-border: oklch(0.92 0.004 286.3);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: oklch(0.556 0 0);
+
+  --tier-official-bg: oklch(0.286 0.06 74.6);
+  --tier-official-fg: oklch(0.879 0.169 91.6);
+  --tier-official-border: oklch(0.414 0.091 78.9);
+  --tier-verified-bg: oklch(0.266 0.048 155.3);
+  --tier-verified-fg: oklch(0.871 0.15 154.4);
+  --tier-verified-border: oklch(0.393 0.086 152.5);
+  --tier-listed-bg: oklch(0.269 0.006 286.1);
+  --tier-listed-fg: oklch(0.871 0.006 286.3);
+  --tier-listed-border: oklch(0.371 0.013 285.8);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-tier-official-bg: var(--tier-official-bg);
+  --color-tier-official-fg: var(--tier-official-fg);
+  --color-tier-official-border: var(--tier-official-border);
+  --color-tier-verified-bg: var(--tier-verified-bg);
+  --color-tier-verified-fg: var(--tier-verified-fg);
+  --color-tier-verified-border: var(--tier-verified-border);
+  --color-tier-listed-bg: var(--tier-listed-bg);
+  --color-tier-listed-fg: var(--tier-listed-fg);
+  --color-tier-listed-border: var(--tier-listed-border);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+}
+
 @layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
-    @apply bg-slate-50 text-slate-900 antialiased;
+    @apply bg-background text-foreground font-sans antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* 无障碍：键盘焦点必须可见（§8.3 底线） */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/*
+ * CONTRIBUTING.md 同源渲染的排版（/submit/ 页）。
+ * 只做基础 Markdown 元素样式，不引入额外插件依赖。
+ */
+@layer components {
+  .doc-prose {
+    @apply text-sm leading-7 text-foreground;
+  }
+
+  .doc-prose > * + * {
+    @apply mt-4;
+  }
+
+  .doc-prose h1 {
+    @apply mt-8 text-2xl font-semibold tracking-tight first:mt-0;
+  }
+
+  .doc-prose h2 {
+    @apply mt-8 border-b border-border pb-2 text-xl font-semibold tracking-tight;
+  }
+
+  .doc-prose h3 {
+    @apply mt-6 text-base font-semibold;
+  }
+
+  .doc-prose h4 {
+    @apply mt-4 text-sm font-semibold;
+  }
+
+  .doc-prose a {
+    @apply font-medium underline underline-offset-4 hover:text-foreground;
+  }
+
+  .doc-prose ul {
+    @apply list-disc space-y-1.5 pl-6;
+  }
+
+  .doc-prose ol {
+    @apply list-decimal space-y-1.5 pl-6;
+  }
+
+  .doc-prose li > ul,
+  .doc-prose li > ol {
+    @apply mt-1.5;
+  }
+
+  .doc-prose code {
+    @apply rounded bg-muted px-1.5 py-0.5 font-mono text-[0.8125em] text-foreground;
+  }
+
+  .doc-prose pre {
+    @apply overflow-x-auto rounded-lg border border-border bg-muted/60 p-4 text-xs;
+  }
+
+  .doc-prose pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .doc-prose blockquote {
+    @apply border-l-2 border-border pl-4 text-muted-foreground;
+  }
+
+  .doc-prose table {
+    @apply w-full border-collapse text-left text-xs;
+  }
+
+  .doc-prose th,
+  .doc-prose td {
+    @apply border border-border px-3 py-2 align-top;
+  }
+
+  .doc-prose th {
+    @apply bg-muted/60 font-semibold;
+  }
+
+  .doc-prose hr {
+    @apply my-8 border-border;
   }
 }

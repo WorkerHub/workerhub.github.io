@@ -1,0 +1,67 @@
+---
+/**
+ * 页头（全站导航 + 主题切换）。
+ * 导航链接全部是站内静态页面；主题切换是唯一的常驻 island。
+ */
+import { ExternalLink } from 'lucide-react';
+
+import ThemeToggle from '@/components/site/theme-toggle';
+import { NAV_ITEMS, SITE } from '@/lib/site';
+
+const pathname = Astro.url.pathname;
+const isActive = (href: string) => pathname === href || (href !== '/' && pathname.startsWith(href));
+---
+
+<header class="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+  <div class="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-2 gap-y-1 px-4 py-2 sm:px-6 lg:h-14 lg:flex-nowrap lg:py-0">
+    <a
+      href="/"
+      class="flex items-center gap-2 rounded-md font-semibold tracking-tight"
+      aria-label="WorkerHub 首页"
+    >
+      <span
+        aria-hidden="true"
+        class="flex size-7 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground"
+      >
+        W
+      </span>
+      <span>WorkerHub</span>
+      <span class="hidden text-xs font-normal text-muted-foreground sm:inline">hub</span>
+    </a>
+
+    <div class="ml-auto flex items-center gap-0.5 lg:order-3">
+      <a
+        href={SITE.githubOrg}
+        target="_blank"
+        rel="noreferrer noopener"
+        class="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+        aria-label="WorkerHub 的 GitHub 组织（新标签打开）"
+      >
+        <ExternalLink aria-hidden="true" className="size-3.5" />
+        <span class="hidden sm:inline">GitHub</span>
+      </a>
+
+      <ThemeToggle client:load />
+    </div>
+
+    <nav
+      aria-label="主导航"
+      class="order-4 flex w-full items-center gap-0.5 overflow-x-auto lg:order-none lg:ml-auto lg:w-auto"
+    >
+      {NAV_ITEMS.map((item) => (
+        <a
+          href={item.href}
+          aria-current={isActive(item.href) ? 'page' : undefined}
+          class:list={[
+            'rounded-md px-2.5 py-1.5 text-sm whitespace-nowrap transition-colors hover:bg-accent hover:text-accent-foreground',
+            isActive(item.href)
+              ? 'bg-accent font-medium text-accent-foreground'
+              : 'text-muted-foreground',
+          ]}
+        >
+          {item.label}
+        </a>
+      ))}
+    </nav>
+  </div>
+</header>
