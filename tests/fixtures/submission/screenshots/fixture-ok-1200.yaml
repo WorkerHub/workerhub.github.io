@@ -1,0 +1,23 @@
+# 演练夹具：截图合规（1200px 宽 webp，体积远低于 300KB）
+slug: fixture-ok-1200
+name: Fixture Ok Screenshot
+repo: WorkerHub/hub-drill-shots-ok
+source: third-party
+tagline_zh: 演练用条目，截图规格完全合规。
+description_zh: 第一条说明句。第二条说明句。
+features:
+  - 特性一
+  - 特性二
+  - 特性三
+tags:
+  - drill
+category: productivity
+deploy:
+  method: wrangler
+resources:
+  - workers-only
+difficulty: 1
+free_tier: yes
+tier: listed
+screenshot: public/screenshots/fixture-ok-1200.webp
+added_at: 2026-10-26

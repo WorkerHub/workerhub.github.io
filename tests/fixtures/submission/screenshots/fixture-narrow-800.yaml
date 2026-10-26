@@ -1,0 +1,23 @@
+# 演练夹具：截图宽度不足 1200px → 硬拦
+slug: fixture-narrow-800
+name: Fixture Narrow Screenshot
+repo: WorkerHub/hub-drill-shots-narrow
+source: third-party
+tagline_zh: 演练用条目，截图只有八百像素宽。
+description_zh: 第一条说明句。第二条说明句。
+features:
+  - 特性一
+  - 特性二
+  - 特性三
+tags:
+  - drill
+category: productivity
+deploy:
+  method: wrangler
+resources:
+  - workers-only
+difficulty: 1
+free_tier: yes
+tier: listed
+screenshot: public/screenshots/fixture-narrow-800.webp
+added_at: 2026-10-26

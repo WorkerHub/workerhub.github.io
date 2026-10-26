@@ -20,6 +20,11 @@ pnpm dev                # 本地开发（http://localhost:4321）
 pnpm build              # 构建：读数据 → schema 校验 → 抓取/合并自动字段 → 输出 dist/
 pnpm preview            # 预览 dist/
 pnpm validate:data      # 只跑数据文件 schema 校验
+pnpm validate:submission # 投稿校验三项：repo 存在且 public / 外链可达性 / 截图规格（§7）
+pnpm check:repos        # 只跑 repo 核验
+pnpm check:links        # 只跑外链可达性
+pnpm check:screenshots  # 只跑截图规格
+pnpm check:pr-scope     # 投稿 PR 变更范围（只允许数据文件与截图）
 pnpm fetch:meta         # 只跑 GitHub 自动字段抓取
 pnpm lint               # astro check（类型检查）+ prettier --check
 pnpm format             # prettier 自动格式化
@@ -89,6 +94,32 @@ HUB_PROJECTS_DIR=<放了一个坏文件的目录> pnpm build
 
 `tests/fixtures/projects-run/` 是演练夹具（指向两个真实 public 仓库），`tests/fixtures/projects/` 是 schema 夹具。两者都不是正式内容。
 
+## 投稿基建（SPEC §7）
+
+投稿 = 向本仓库提 PR，只新增/修改 `src/data/projects/<slug>.yaml`（及可选截图）。相关文件：
+
+| 文件                               | 作用                                                                                                                             |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `CONTRIBUTING.md`（仓库根）        | 收录门槛（五条）、字段说明、数据文件模板、验证等级、下架与异议通道。**与 `/submit/` 页同源**：页面构建时引入本文件，二者不得分叉 |
+| `.github/PULL_REQUEST_TEMPLATE.md` | 逐项勾选五条门槛 + 证据链接 + 数据合规自查 + 变更范围声明                                                                        |
+| `src/lib/submission-checks.ts`     | repo 核验 / 外链可达性 / 截图规格的校验逻辑                                                                                      |
+| `src/lib/pr-scope.ts`              | 投稿 PR 变更范围（只允许数据文件与截图）                                                                                         |
+
+投稿数据校验（`pnpm validate:submission`，CI 对投稿 PR 与官方数据 PR 同等适用）：
+
+| 检查                                                           | 失败后果                                     |
+| -------------------------------------------------------------- | -------------------------------------------- |
+| schema / 枚举 / 未知字段 / 手写自动字段                        | 失败                                         |
+| `slug` 与文件名一致、slug 与 repo 双维度查重                   | 失败                                         |
+| `repo` 真实存在且为 public（GitHub API）                       | 失败（不存在 / 私有 / 无法核验）             |
+| `tier=verified` 凭证书、`free_tier != yes` 时的 `pricing_note` | 失败                                         |
+| 第三方外链（`docs_url` / `deploy.*`）不可达                    | **警告**，评审人人工确认                     |
+| 官方项目全部外链、任何项目的 `homepage`（演示站）不可达        | 失败                                         |
+| 截图（webp / 宽 ≥1200px / ≤300KB）                             | 失败                                         |
+| 投稿 PR 改了数据文件与截图之外的文件                           | 失败（PR 描述带 `hub-submission-pr` 标记时） |
+
+演练：`tests/fixtures/submission/` 是投稿校验夹具（不存在的 repo、不可达外链、不合规截图），CI 的 `drills` job 逐项验证「该拦的拦、该放的放」。
+
 ## 目录结构
 
 ```
@@ -98,12 +129,15 @@ src/data/projects/          项目数据文件（内容子单维护）
 src/data/cache/             GitHub 自动字段缓存
 src/lib/project-schema.ts   数据字段/枚举定义（冻结契约）
 src/lib/validate-projects.ts 集合级校验（slug 与文件名一致、slug/repo 查重）
+src/lib/submission-checks.ts 投稿校验（repo public / 外链可达性 / 截图规格）
+src/lib/pr-scope.ts         投稿 PR 变更范围判定
 src/lib/github-meta.ts      抓取、缓存、降级、异常清单
 src/lib/projects.ts         页面侧取数入口（人工字段 + 自动字段合并、默认排序）
 src/lib/build-info.ts       版本号 / 构建时间
 src/pages/index.astro       占位页（正式页面由 S2-A 替换）
-scripts/                    validate-data.ts / fetch-github-meta.ts
+scripts/                    validate-data.ts / validate-submission.ts / check-pr-scope.ts / fetch-github-meta.ts
 tests/                      单测 + 进程级集成测试 + 夹具
+.github/PULL_REQUEST_TEMPLATE.md  投稿 PR 模板（五条门槛逐项勾选 + 证据栏）
 .github/workflows/ci.yml    校验与演练（不含发布）
 ```
 
@@ -126,5 +160,6 @@ tests/                      单测 + 进程级集成测试 + 夹具
 ## 范围（防止顺带扩大，SPEC §11）
 
 - 本单（S1-A）：脚手架、数据管线（schema + 抓取 + 缓存降级）、能让 `pnpm build` 跑通的占位页、CI 校验与演练。
+- 本单（S2-B）：`CONTRIBUTING.md`、PR 模板、投稿数据校验（repo / 外链 / 截图 / PR 变更范围）与对应演练；`/submit/` 页面的引入由 S2-A 负责。
 - 不在本单：正式页面/组件与主题（S2-A）、官方与第三方内容数据（内容子单）、CONTRIBUTING 与 PR 模板、每日重建与双线发布（部署子单）、PR 合并与域名绑定（用户关口）。
 - 本站不加后端、不加 D1/KV/DO/R2、不加登录鉴权、不引入任何 secret（SPEC §0）。

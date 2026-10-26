@@ -38,6 +38,12 @@ jobs:
       - name: 数据文件 schema 校验（§4.1 / §7：非法数据直接失败并点名字段）
         run: pnpm validate:data
 
+      - name: 投稿数据校验（§7：repo 存在且 public / 外链可达性 / 截图规格）
+        run: pnpm validate:submission
+        env:
+          # 只读公开数据足够；不要求、也不允许任何 PAT 入仓（§9.2）
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Lint 与类型检查
         run: pnpm lint
 
@@ -104,3 +110,69 @@ jobs:
             exit 1
           fi
           echo "守卫演练通过：非法数据构建失败"
+
+      - name: 演练 3｜不存在的 repo 必须让 CI 失败并点名（§7）
+        run: |
+          if HUB_PROJECTS_DIR=tests/fixtures/submission/repos pnpm check:repos; then
+            echo "::error::不存在的 repo 竟然通过了核验，§7 门槛失效"
+            exit 1
+          fi
+          echo "repo 核验演练通过：不存在的仓库被拦下"
+
+      - name: 演练 4｜第三方外链失败只警告，官方/演示站失败硬拦（§7）
+        run: |
+          HUB_PROJECTS_DIR=tests/fixtures/submission/links/third-party pnpm check:links
+          echo "第三方外链失败仅警告：CI 未失败，符合 §7"
+          if HUB_PROJECTS_DIR=tests/fixtures/submission/links/official pnpm check:links; then
+            echo "::error::官方/演示站外链失败竟然放行了，§7 硬拦失效"
+            exit 1
+          fi
+          echo "官方/演示站外链失败硬拦：符合 §7"
+
+      - name: 演练 5｜不合规截图必须让 CI 失败并逐条点名（§7）
+        run: |
+          if HUB_PROJECTS_DIR=tests/fixtures/submission/screenshots \
+             HUB_SCREENSHOTS_DIR=tests/fixtures/screenshots \
+             pnpm check:screenshots; then
+            echo "::error::不合规截图竟然通过了，截图规格校验失效"
+            exit 1
+          fi
+          echo "截图规格演练通过：宽不足 / 超体积 / 假 webp 均被拦下"
+
+      - name: 演练 6｜投稿 PR 越界改代码必须失败（§7）
+        run: |
+          if HUB_PR_BODY='<!-- hub-submission-pr -->' \
+             HUB_PR_CHANGED_FILES=$'src/data/projects/demo.yaml\nsrc/lib/project-schema.ts' \
+             pnpm check:pr-scope; then
+            echo "::error::投稿 PR 越界改代码竟然放行了，变更范围校验失效"
+            exit 1
+          fi
+          HUB_PR_BODY='<!-- hub-submission-pr -->' \
+          HUB_PR_CHANGED_FILES='src/data/projects/demo.yaml' pnpm check:pr-scope
+          echo "变更范围演练通过：越界被拦、合规放行"
+
+  submission-scope:
+    name: 投稿 PR 变更范围
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # 需要与目标分支的 merge-base 做三点 diff
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: 投稿 PR 只允许改数据文件与截图（§7）
+        run: pnpm check:pr-scope
+        env:
+          HUB_PR_BODY: ${{ github.event.pull_request.body }}
+          HUB_PR_BASE_REF: ${{ github.base_ref }}

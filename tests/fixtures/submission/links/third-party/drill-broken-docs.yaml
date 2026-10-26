@@ -1,0 +1,25 @@
+# 演练夹具：第三方条目的 docs_url 不可达 → 只警告，CI 仍通过（§7）
+# 127.0.0.1:9 是必然拒绝连接的地址，用于稳定复现「外链探测失败」。
+slug: drill-broken-docs
+name: Drill Broken Docs
+repo: WorkerHub/workerhub.github.io
+source: third-party
+tagline_zh: 演练用条目，文档链接指向不可达地址。
+description_zh: 第一条说明句。第二条说明句。
+features:
+  - 特性一
+  - 特性二
+  - 特性三
+tags:
+  - drill
+category: devops
+docs_url: http://127.0.0.1:9/drill/guide
+deploy:
+  method: wrangler
+  guide_url: http://127.0.0.1:9/drill/deploy
+resources:
+  - workers-only
+difficulty: 1
+free_tier: yes
+tier: listed
+added_at: 2026-10-26
