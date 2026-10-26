@@ -1,0 +1,38 @@
+{
+  "name": "workerhub-hub",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "WorkerHub 首页/目录站（hub）：Cloudflare Workers 生态中文精选应用目录",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=24.0.0 <25"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "tsx scripts/fetch-github-meta.ts && astro build",
+    "preview": "astro preview",
+    "validate:data": "tsx scripts/validate-data.ts",
+    "fetch:meta": "tsx scripts/fetch-github-meta.ts",
+    "lint": "pnpm lint:types && pnpm lint:format",
+    "format": "prettier --write .",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "lint:types": "astro check",
+    "lint:format": "prettier --check ."
+  },
+  "dependencies": {
+    "astro": "^7.4.2",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^26.6.5",
+    "prettier": "^3.6.2",
+    "prettier-plugin-astro": "^1.1.2",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.0"
+  }
+}

@@ -1,0 +1,25 @@
+# 测试夹具（fixture）：校验合法第三方 listed 条目。仓库名是占位，不指向真实项目。
+slug: example-listed
+name: Example Listed
+repo: example-org/example-listed
+source: third-party
+tagline_zh: 示例条目，用于校验数据文件 schema 与枚举校验。
+description_zh: 第一条说明句，用来验证句子数量校验。第二条说明句，同样用于测试。
+features:
+  - 特性一
+  - 特性二
+  - 特性三
+category: devops
+tags:
+  - example
+  - fixture
+deploy:
+  method: wrangler
+  guide_url: https://example.com/guide
+resources:
+  - workers-only
+difficulty: 1
+free_tier: yes
+tier: listed
+featured: true
+added_at: 2026-10-26

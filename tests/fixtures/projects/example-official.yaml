@@ -1,0 +1,23 @@
+# 测试夹具：合法官方 coming-soon 条目（预告位形态，无部署入口）。
+slug: example-official
+name: Example Official
+repo: WorkerHub/example-official
+source: official
+tagline_zh: 官方预告位示例条目，用于校验 coming-soon 形态。
+description_zh: 第一条说明句。第二条说明句。
+features:
+  - 特性一
+  - 特性二
+  - 特性三
+tags:
+  - fixture
+category: productivity
+deploy:
+  method: docs-only
+resources:
+  - workers-only
+difficulty: 1
+free_tier: yes
+tier: official
+added_at: 2026-10-26
+status: coming-soon

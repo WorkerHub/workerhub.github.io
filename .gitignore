@@ -1,0 +1,17 @@
+# 依赖与构建产物
+node_modules/
+dist/
+.astro/
+
+# 构建期生成的抓取报告（内容每次变化，不入库）
+github-meta-report.json
+
+# 本地环境变量与编辑器
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
+
+# 测试临时目录
+tests/.tmp/

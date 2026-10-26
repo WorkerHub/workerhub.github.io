@@ -1,0 +1,6 @@
+dist/
+.astro/
+node_modules/
+pnpm-lock.yaml
+src/data/cache/github-meta.json
+github-meta-report.json

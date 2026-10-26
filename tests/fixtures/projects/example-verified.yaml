@@ -1,0 +1,27 @@
+# 测试夹具：合法第三方 verified 条目（凭证书齐备）。
+slug: example-verified
+name: Example Verified
+repo: example-org/example-verified
+source: third-party
+tagline_zh: 已验证等级的示例条目，用于校验凭证书字段。
+description_zh: 第一条说明句。第二条说明句。
+features:
+  - 特性一
+  - 特性二
+  - 特性三
+tags:
+  - fixture
+category: email
+deploy:
+  method: git-integration
+  guide_url: https://example.com/deploy
+resources:
+  - d1
+  - r2
+difficulty: 2
+free_tier: partial
+pricing_note: 免费层每日请求量受限，重负载需 Workers Paid。
+tier: verified
+verified_at: 2026-10-20
+verified_note_url: https://github.com/WorkerHub/workerhub.github.io/issues/1
+added_at: 2026-10-21
