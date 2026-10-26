@@ -16,3 +16,8 @@ og-report.json
 
 # 测试临时目录
 tests/.tmp/
+
+# 部署工作流产出的报告与状态（不入库：报告每次变化，状态由 actions/cache 持久化）
+link-health-report.json
+link-health-state.json
+build-summary.md

@@ -4,7 +4,7 @@ Cloudflare Workers 生态的中文精选应用目录：官方自研项目 + 经�
 
 **本站是纯静态站点**：无后端、无数据库、无鉴权、无站点级 secret（SPEC v1.4 §0 明示例外项）。构建产物是纯静态 HTML，同时发布到主站 `hub.oneboy.app`（Cloudflare Pages）与镜像 `workerhub.github.io`（GitHub Pages），canonical 恒写主域名。
 
-> 当前进度：S1-A 脚手架与数据管线、S1-B 内容数据（官方 7 + 第三方 4）、S2-A 页面与组件（页面 / 统一卡片 / 搜索筛选排序 / 主题三档 / SEO）、S2-B 投稿基建（CONTRIBUTING / PR 模板 / 投稿数据校验）均已交付；双线部署（S3）分属后续子单，见文末「范围」。
+> 当前进度：S1-A 脚手架与数据管线、S1-B 内容数据（官方 7 + 第三方 4）、S2-A 页面与组件（页面 / 统一卡片 / 搜索筛选排序 / 主题三档 / SEO）、S2-B 投稿基建（CONTRIBUTING / PR 模板 / 投稿数据校验）、S3 双线部署（GitHub Actions 工作流 + CF deploy hook + 每日重建 + 本文件两份核对表）均已交付；**上线关口（CF Pages 建项、域名绑定、GitHub Pages 启用）归用户**，团队交付停在 PR，见文末「范围」。
 
 ## 技术栈（SPEC §8.1）
 
@@ -26,6 +26,8 @@ pnpm check:links        # 只跑外链可达性
 pnpm check:screenshots  # 只跑截图规格
 pnpm check:pr-scope     # 投稿 PR 变更范围（只允许数据文件与截图）
 pnpm fetch:meta         # 只跑 GitHub 自动字段抓取
+pnpm health:links       # 外链健康巡检（§9.3，每日重建跑的那一步；只出报告不硬拦）
+pnpm summary:build      # 生成构建摘要 Markdown（§9.2/§9.3，写进 GitHub Actions summary）
 pnpm lint               # astro check（类型检查）+ prettier --check
 pnpm format             # prettier 自动格式化
 pnpm test               # 单元 + 集成测试（node:test）
@@ -162,36 +164,97 @@ src/lib/project-filter.ts   搜索 / 六维筛选 / 五种排序 / URL 状态同
 src/lib/project-entry.ts    卡片主入口与详情页部署按钮（唯一真源）
 src/lib/site.ts             站点常量与绝对地址（canonical 恒写主域名）
 src/lib/build-info.ts       版本号 / 构建时间
+src/lib/link-health.ts      外链巡检 + 连续失败计数（§9.3）
+src/lib/build-summary.ts    构建摘要渲染（§9.2 / §9.3，纯函数）
 src/components/ui/          shadcn/ui 组件（Badge / Button / Input / Checkbox / Dialog / Dropdown / Separator）
 src/components/project/     统一卡片、徽章、截图回退
 src/components/site/        页头页脚、主题切换 island、筛选 island
 src/layouts/base-layout.astro  SEO/OG/canonical、主题防闪烁、页头页脚
 src/pages/                  首页 / projects / p/<slug> / categories/<slug> / submit / about / 404 / sitemap.xml / robots.txt
 public/og/github/           构建期本地化的仓库 OG 图缓存（§8.3，抓取失败则走首字图）
-scripts/                    validate-data.ts / validate-submission.ts / check-pr-scope.ts / fetch-github-meta.ts / fetch-og-images.ts
+scripts/                    validate-data.ts / validate-submission.ts / check-pr-scope.ts / fetch-github-meta.ts / fetch-og-images.ts / link-health.ts / build-summary.ts
 tests/                      单测 + 进程级集成测试 + 夹具
 .github/PULL_REQUEST_TEMPLATE.md  投稿 PR 模板（五条门槛逐项勾选 + 证据栏）
 .github/workflows/ci.yml    校验与演练（不含发布）
+.github/workflows/deploy.yml 双线部署（GitHub Pages 镜像 + CF Pages deploy hook + 每日重建）
 ```
 
-## 双线部署设置核对表（供部署子单执行，本单不碰）
+## 双线部署（SPEC §0 / §8.1 / §9.2 / §9.3）
 
-| 项                           | 值 / 要求                                                                                                                 |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| 主站托管                     | Cloudflare Pages，项目连 `WorkerHub/workerhub.github.io`                                                                  |
-| 主站生产分支                 | `main`                                                                                                                    |
-| CF Pages 构建命令            | `pnpm build`                                                                                                              |
-| CF Pages 输出目录            | `dist`                                                                                                                    |
-| CF Pages 环境变量            | 无需业务变量；GitHub 抓取可选注入 `GITHUB_TOKEN`（只读）                                                                  |
-| 域名                         | `hub.oneboy.app` 为主域名；`workerhub.oneboy.app` 301 到主域名                                                            |
-| 镜像托管                     | GitHub Pages，来源 = **GitHub Actions**                                                                                   |
-| GitHub Pages 自定义域名栏    | **必须留空**（填任何域名都会让镜像变跳转、双线失效）                                                                      |
-| canonical / sitemap 绝对地址 | 恒为 `https://hub.oneboy.app`，镜像侧同样如此，不按访问域名动态生成                                                       |
-| 每日重建                     | 同一个工作流：刷新数据构建 → 发布 GitHub Pages → 用 CF Pages deploy hook 触发主站同版重建（hook URL 只进 GitHub Secrets） |
-| 发布失败                     | 两侧各自独立报错，一侧失败不阻塞另一侧                                                                                    |
+同一个提交 → **同一份** `dist/` 产物 → 两条**互相独立**的发布通道：
+
+| 一线         | 托管                           | 地址                  | 怎么发                                                              |
+| ------------ | ------------------------------ | --------------------- | ------------------------------------------------------------------- |
+| 主站         | Cloudflare Pages（Git 集成）   | `hub.oneboy.app`      | CF 自己从 `main` 构建；本工作流另用 **deploy hook** 触发同版重建    |
+| 镜像（备用） | GitHub Pages（来源 = Actions） | `workerhub.github.io` | 本工作流构建后用官方 Pages 发布动作上线（不往仓库写 gh-pages 分支） |
+
+### 工作流 `.github/workflows/deploy.yml`
+
+```
+触发：push 到 main（有新提交）／ 每日 cron 19:17 UTC（北京 03:17）／ workflow_dispatch（含演练开关）
+  │
+  ├─ build ──────────── pnpm install → 密钥红线自检 → pnpm build → 产物自检 → 上传 dist/ 与构建报告
+  │    │
+  │    ├─ link-health ── 仅在定时/手动时跑：全部外链可达性巡检（连续失败计数走 actions/cache，不写仓库）
+  │    │
+  │    ├─ publish-github-pages ────── 官方 Pages 动作发布镜像（environment: github-pages）
+  │    └─ publish-cloudflare-pages ── POST CF Pages deploy hook（URL 只来自 Secrets）
+  │
+  └─ summary ─────────── 汇总进 GitHub Actions summary + build-summary.md 产物
+```
+
+- **一侧失败不阻塞另一侧**（§0 / §9.2）：两个 publish job 只依赖 `build`，彼此**不互为 `needs`**，各自跑、各自红、各自在日志里报错；`summary` 用 `if: always()` 逐侧标注结果。
+- **构建摘要必含**（§9.2 / §9.3）：自动字段刷新结果（成功 / 缓存兜底 / 降级置空 / 数据错误 + 逐项降级原因）、archive 与超过 365 天未更新的异常项目清单、外链巡检结果与**连续失败点名**（阈值：连续 2 次）、两侧发布结果。
+- **不自动改数据**：异常项目与坏链只进摘要，是否下架/修正走人工数据 PR；工作流**不向 `main` 写提交**（自动字段缓存如有变化，作为 `reports` 产物上传，由维护者随数据 PR 提交）。
+- **密钥红线**：CF Pages deploy hook URL 只放 GitHub Secrets，名为 `CLOUDFLARE_PAGES_DEPLOY_HOOK`；`build` 里有一道自检，扫到仓库文件里出现 deploy hook URL 直接失败；日志只打印 HTTP 状态码，不回显 URL。
+- **版本号一致性**（§12 第 10 条）：页脚版本号 = 构建时 `git describe --tags --always`（`src/lib/build-info.ts`）。两侧都从同一提交构建，所以值相同；需要固定时可用 `HUB_VERSION` 覆盖。刻意**不用 `--dirty`**：构建本身会改写自动字段缓存文件，带 `--dirty` 会让每次 CI 构建都得到 `<sha>-dirty`，两侧无法比较。
+
+### 演练（不发出真实发布）
+
+`workflow_dispatch` 两个输入：
+
+| 输入               | 值                     | 作用                                                                                    |
+| ------------------ | ---------------------- | --------------------------------------------------------------------------------------- |
+| `dry_run`          | `true`                 | 只构建 + 出摘要：**不调** Pages 发布动作、**不调** deploy hook（不读也不打印 hook URL） |
+| `simulate_failure` | `pages` / `cloudflare` | 演练时故意让一侧失败，验证另一侧照常走完且有独立报错（仅 `dry_run=true` 下允许）        |
+
+等价地可以从仓库里跑：`pnpm build && pnpm health:links && pnpm summary:build`（摘要直接看 `build-summary.md`）。
+
+已知平台限制（不是工作流缺陷）：
+
+1. `workflow_dispatch` 要求该工作流文件已存在于**默认分支**，所以合并进 `main` 之前无法从 UI/API 手动触发；
+2. `publish-github-pages` 绑定了 `github-pages` 环境，该环境的部署分支策略只放行 `main`，非 `main` 分支跑真实发布会被环境拦下（演练用 `dry_run=true` 不触碰发布动作，因此不受影响）。
+
+## 上线设置核对表（两平台，逐项确认）
+
+下面这些**全部是用户关口的操作**（团队不代建项目、不绑域名、不启 Pages、不动仓库设置），按顺序打勾即可。
+
+### A. Cloudflare Pages（主站 `hub.oneboy.app`）
+
+- [ ] 创建 Pages 项目，连接 GitHub 仓库 `WorkerHub/workerhub.github.io`
+- [ ] 生产分支 = `main`；PR 自动预览开启（预览部署不参与双线同版校验）
+- [ ] 构建命令 = `pnpm build`，输出目录 = `dist`（构建镜像的 Node 版本需 ≥ 24，仓库 `.nvmrc` 为 24）
+- [ ] 环境变量：无业务变量；如需避免 GitHub API 限流，可加只读 `GITHUB_TOKEN`（可选）
+- [ ] Settings → Builds & deployments → **Deploy hooks 生成一条 hook**，把 URL 存进 GitHub Secrets：名称 `CLOUDFLARE_PAGES_DEPLOY_HOOK`（**只进 Secrets，不写进仓库文件、README、评论、工单**）
+- [ ] 绑定自定义域名 `hub.oneboy.app`；`workerhub.oneboy.app` 做 301 到主域名
+- [ ] （可选，§10）Cloudflare Web Analytics 站点开启后，把 token 作为构建环境变量 `HUB_CF_ANALYTICS_TOKEN` 注入
+
+### B. GitHub Pages（镜像 `workerhub.github.io`）
+
+- [ ] Settings → Pages → **Source = GitHub Actions**（不是 Deploy from a branch）
+- [ ] Settings → Pages → **Custom domain 栏必须留空** ← 硬性项：填任何域名都会让镜像变成跳转站，双线即失效（§0）
+- [ ] Settings → Environments → `github-pages` 的部署分支策略放行 `main`
+- [ ] Actions 权限：仓库允许 Actions 创建 deployment（默认已允许）
+
+### C. 合并后的首次验证
+
+- [ ] 合并本 PR 后，`main` 上触发一次「双线部署」，两侧均为 ✅（首次正式运行前 B 节若未做，Pages 侧会红——属预期，不是工作流问题）
+- [ ] 两侧各抽查三页：页脚版本号一致；镜像侧 canonical 指向 `https://hub.oneboy.app`
+- [ ] Actions summary 里能看到：自动字段刷新结果、异常项目清单、链接健康（连续失败点名）、两侧发布结果
+- [ ] 次日检查定时重建是否自动跑过一次（cron 19:17 UTC）
 
 ## 范围（防止顺带扩大，SPEC §11）
 
-- 已交付：S1-A 脚手架与数据管线（schema + 抓取 + 缓存降级 + CI 校验与演练）、S1-B 内容数据（官方 7 + 第三方 4）、S2-A 页面与组件（页面、统一卡片、搜索筛选排序、主题三档、SEO/分享与 sitemap）、S2-B 投稿基建（CONTRIBUTING、PR 模板、投稿数据校验与演练）。
-- 不在这些单里：每日重建与双线发布（部署子单）、PR 合并与域名绑定（用户关口）。
-- 本站不加后端、不加 D1/KV/DO/R2、不加登录鉴权、不引入任何 secret（SPEC §0）。
+- 已交付：S1-A 脚手架与数据管线（schema + 抓取 + 缓存降级 + CI 校验与演练）、S1-B 内容数据（官方 7 + 第三方 4）、S2-A 页面与组件（页面、统一卡片、搜索筛选排序、主题三档、SEO/分享与 sitemap）、S2-B 投稿基建（CONTRIBUTING、PR 模板、投稿数据校验与演练）、S3 双线部署（`.github/workflows/deploy.yml` + 链接健康 + 构建摘要 + 上文两份核对表）。
+- 不在这些单里：PR 合并与域名绑定 / Pages 建项 / Pages 启用 / deploy hook 入 Secrets（用户关口）。
+- 本站不加后端、不加 D1/KV/DO/R2、不加登录鉴权、不引入任何 secret（SPEC §0）；唯一的 secret 是 CF Pages deploy hook URL，且只存于 GitHub Secrets。

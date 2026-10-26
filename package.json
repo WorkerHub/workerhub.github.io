@@ -24,7 +24,9 @@
     "test": "node --import tsx --test tests/*.test.ts",
     "lint:types": "astro check",
     "lint:format": "prettier --check .",
-    "fetch:og": "tsx scripts/fetch-og-images.ts"
+    "fetch:og": "tsx scripts/fetch-og-images.ts",
+    "health:links": "tsx scripts/link-health.ts",
+    "summary:build": "tsx scripts/build-summary.ts"
   },
   "dependencies": {
     "@astrojs/react": "^7.1.1",
