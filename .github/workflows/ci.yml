@@ -94,6 +94,7 @@ jobs:
           HUB_PROJECTS_DIR=tests/fixtures/projects-run \
           HUB_META_CACHE=tests/.tmp/drill-cache.json \
           HUB_META_REPORT=tests/.tmp/drill-report.json \
+          HUB_SKIP_OG=1 \
           pnpm build
           test -f dist/index.html
           grep -q '"degradedToEmpty": 2' tests/.tmp/drill-report.json

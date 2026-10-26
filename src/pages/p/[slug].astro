@@ -1,0 +1,385 @@
+---
+/**
+ * 项目详情页（SPEC §2 / §5 / §6.2 / §8.3 / §10）。
+ *
+ * - 静态生成，每项目一页；`status=delisted` 的项目不生成（返回真实 404，§6.3）。
+ * - 截图用「项目截图 → 构建期本地化 OG 图 → 分类着色首字图」，禁止热链 GitHub（§8.3）。
+ * - `tier=listed` 必须有固定未实测声明文案（§6.2）；`coming-soon` 明示暂无部署入口（§3.1）。
+ * - 详情页 title 模板：`<项目名> — <一句话> | WorkerHub`；canonical 恒写主域名（§10）。
+ */
+import { ArrowLeft, ArrowUpRight, CircleCheck, Info, TriangleAlert } from 'lucide-react';
+
+import {
+  AutoMeta,
+  ComingSoonBadge,
+  FreeTierBadge,
+  ResourceBadges,
+  StaleBadge,
+  TierBadge,
+} from '@/components/project/badges';
+import ProjectCard from '@/components/project/project-card';
+import { ProjectThumb } from '@/components/project/project-thumb';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import BaseLayout from '@/layouts/base-layout.astro';
+import { deployAction, secondaryEntries } from '@/lib/project-entry';
+import { getProjectViews } from '@/lib/project-view';
+import { sortProjects } from '@/lib/project-filter';
+import {
+  CATEGORY_LABELS,
+  DEPLOY_METHOD_META,
+  DIFFICULTY_HINTS,
+  DIFFICULTY_LABELS,
+  FREE_TIER_META,
+  LISTED_DISCLAIMER,
+  RESOURCE_LABELS,
+  TIER_META,
+  type ProjectView,
+} from '@/lib/project-types';
+import { absoluteUrl, SITE } from '@/lib/site';
+
+export async function getStaticPaths() {
+  const views = await getProjectViews();
+  return views.map((project) => ({ params: { slug: project.slug }, props: { project, views } }));
+}
+
+interface Props {
+  project: ProjectView;
+  views: ProjectView[];
+}
+
+const { project, views } = Astro.props as Props;
+
+const deployMeta = DEPLOY_METHOD_META[project.deploy.method];
+const deepLink = deployAction(project);
+const secondary = secondaryEntries(project);
+
+const recommendations = sortProjects(
+  views.filter((view) => view.category === project.category && view.slug !== project.slug),
+  'default',
+).slice(0, 4);
+
+const ogImagePath = project.screenshot ?? project.ogImage;
+const ogImage = ogImagePath ? absoluteUrl(ogImagePath) : absoluteUrl('/og/og-default.png');
+
+const title = `${project.name} — ${project.tagline} | ${SITE.name}`;
+const description = `${project.tagline}。部署方式：${deployMeta.label}；所需资源：${project.resources
+  .map((resource) => RESOURCE_LABELS[resource])
+  .join('、')}；难度：${DIFFICULTY_LABELS[project.difficulty] ?? '标准'}；验证等级：${
+  TIER_META[project.tier].label
+}。`;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  ogImage={ogImage}
+  ogType="article"
+  canonicalPath={`/p/${project.slug}/`}
+>
+  <div class="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
+    <nav aria-label="面包屑" class="text-sm text-muted-foreground">
+      <ol class="flex flex-wrap items-center gap-1.5">
+        <li>
+          <a class="hover:underline" href="/">
+            首页
+          </a>
+        </li>
+        <li aria-hidden="true">/</li>
+        <li>
+          <a class="hover:underline" href="/projects/">
+            全部项目
+          </a>
+        </li>
+        <li aria-hidden="true">/</li>
+        <li>
+          <a class="hover:underline" href={`/categories/${project.category}/`}>
+            {CATEGORY_LABELS[project.category]}
+          </a>
+        </li>
+        <li aria-hidden="true">/</li>
+        <li aria-current="page" class="text-foreground">
+          {project.name}
+        </li>
+      </ol>
+    </nav>
+
+    <article class="mt-6">
+      <div class="grid gap-6 lg:grid-cols-[1.1fr_1fr] lg:items-start">
+        <ProjectThumb project={project} variant="detail" />
+
+        <div class="space-y-4">
+          <div class="flex flex-wrap items-center gap-1.5">
+            <TierBadge source={project.source} tier={project.tier} />
+            <Badge variant="secondary" asChild>
+              <a href={`/categories/${project.category}/`}>{CATEGORY_LABELS[project.category]}</a>
+            </Badge>
+            {project.status === 'coming-soon' && <ComingSoonBadge />}
+            {project.status !== 'coming-soon' && project.stale && (
+              <StaleBadge archived={project.archived} />
+            )}
+          </div>
+
+          <div>
+            <h1 class="text-3xl font-semibold tracking-tight text-balance">{project.name}</h1>
+            <p class="mt-2 text-base leading-7 text-muted-foreground">{project.tagline}</p>
+          </div>
+
+          <p class="text-sm leading-7 text-foreground">{project.description}</p>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <Button asChild size="lg">
+              <a
+                href={deepLink.href}
+                {...(deepLink.external ? { target: '_blank', rel: 'noreferrer noopener' } : {})}
+              >
+                {deepLink.label}
+                <ArrowUpRight aria-hidden="true" />
+              </a>
+            </Button>
+            {secondary.map((entry) => (
+              <Button asChild variant="outline" size="lg">
+                <a
+                  href={entry.href}
+                  {...(entry.external ? { target: '_blank', rel: 'noreferrer noopener' } : {})}
+                >
+                  {entry.label}
+                </a>
+              </Button>
+            ))}
+          </div>
+
+          <p class="text-xs leading-6 text-muted-foreground">
+            部署方式：{deployMeta.label}。{deployMeta.description}
+          </p>
+        </div>
+      </div>
+
+      {project.status === 'coming-soon' && (
+        <div class="mt-6 flex items-start gap-2 rounded-lg border border-border bg-muted/50 p-4 text-sm leading-6">
+          <Info aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+          <p>
+            项目仍在开发中，v1 以「即将推出」形态上架，<b>暂不提供部署入口</b>
+            ；上线后转为普通条目并开放部署入口。
+          </p>
+        </div>
+      )}
+
+      {project.tier === 'listed' && (
+        <div class="mt-6 flex items-start gap-2 rounded-lg border border-tier-listed-border bg-tier-listed-bg p-4 text-sm leading-6 text-tier-listed-fg">
+          <Info aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+          <p>
+            <b>未实测声明：</b>
+            {LISTED_DISCLAIMER}
+          </p>
+        </div>
+      )}
+
+      {project.tier === 'verified' && (
+        <div class="mt-6 flex items-start gap-2 rounded-lg border border-tier-verified-border bg-tier-verified-bg p-4 text-sm leading-6 text-tier-verified-fg">
+          <CircleCheck aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+          <p>
+            本站已于 {project.verifiedAt} 按项目文档完成过一次部署实测。
+            {project.verifiedNoteUrl && (
+              <a
+                class="underline underline-offset-4"
+                href={project.verifiedNoteUrl}
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                查看验证记录
+              </a>
+            )}
+          </p>
+        </div>
+      )}
+
+      {project.archived && (
+        <div class="mt-6 flex items-start gap-2 rounded-lg border border-border bg-muted/50 p-4 text-sm leading-6">
+          <TriangleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+          <p>上游仓库已 archive：项目保留记录，但不再接受更新，请自行评估可用性。</p>
+        </div>
+      )}
+
+      <Separator className="my-8" />
+
+      <div class="grid gap-8 md:grid-cols-2">
+        <section aria-labelledby="features-heading">
+          <h2 id="features-heading" class="text-lg font-semibold tracking-tight">
+            主要特性
+          </h2>
+          <ul class="mt-3 space-y-2 text-sm leading-6">
+            {project.features.map((feature) => (
+              <li class="flex gap-2">
+                <CircleCheck
+                  aria-hidden="true"
+                  className="mt-1 size-4 shrink-0 text-muted-foreground"
+                />
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
+          {project.tags.length > 0 && (
+            <ul class="mt-4 flex flex-wrap gap-1.5" aria-label="标签">
+              {project.tags.map((tag) => (
+                <li>
+                  <Badge variant="outline" className="font-normal">
+                    #{tag}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section aria-labelledby="deploy-heading">
+          <h2 id="deploy-heading" class="text-lg font-semibold tracking-tight">
+            部署信息
+          </h2>
+          <dl class="mt-3 divide-y divide-border rounded-lg border border-border text-sm">
+            <div class="flex items-start justify-between gap-4 p-3">
+              <dt class="text-muted-foreground">部署方式</dt>
+              <dd class="text-right font-medium">
+                <a
+                  class="underline underline-offset-4"
+                  href={deepLink.href}
+                  {...(deepLink.external ? { target: '_blank', rel: 'noreferrer noopener' } : {})}
+                >
+                  {deployMeta.label}
+                </a>
+              </dd>
+            </div>
+            <div class="flex items-start justify-between gap-4 p-3">
+              <dt class="shrink-0 text-muted-foreground">所需资源</dt>
+              <dd class="text-right">
+                <ResourceBadges
+                  resources={project.resources}
+                  visible={project.resources.length}
+                  className="justify-end"
+                />
+              </dd>
+            </div>
+            <div class="flex items-start justify-between gap-4 p-3">
+              <dt class="text-muted-foreground">部署难度</dt>
+              <dd class="text-right">
+                <span class="font-medium">{DIFFICULTY_LABELS[project.difficulty] ?? '标准'}</span>
+                <span class="block text-xs text-muted-foreground">
+                  {DIFFICULTY_HINTS[project.difficulty]}
+                </span>
+              </dd>
+            </div>
+            <div class="flex items-start justify-between gap-4 p-3">
+              <dt class="text-muted-foreground">免费层</dt>
+              <dd class="text-right">
+                <FreeTierBadge freeTier={project.freeTier} />
+                <span class="mt-1 block text-xs text-muted-foreground">
+                  {project.pricingNote ?? FREE_TIER_META[project.freeTier].description}
+                </span>
+              </dd>
+            </div>
+            <div class="flex items-start justify-between gap-4 p-3">
+              <dt class="text-muted-foreground">验证等级</dt>
+              <dd class="text-right">
+                <TierBadge source={project.source} tier={project.tier} />
+                <span class="mt-1 block text-xs text-muted-foreground">
+                  {TIER_META[project.tier].description}
+                </span>
+              </dd>
+            </div>
+            {project.verifiedAt && (
+              <div class="flex items-start justify-between gap-4 p-3">
+                <dt class="text-muted-foreground">验证日期</dt>
+                <dd class="text-right font-medium">{project.verifiedAt}</dd>
+              </div>
+            )}
+            <div class="flex items-start justify-between gap-4 p-3">
+              <dt class="text-muted-foreground">收录日期</dt>
+              <dd class="text-right font-medium">{project.addedAt}</dd>
+            </div>
+          </dl>
+        </section>
+      </div>
+
+      <Separator className="my-8" />
+
+      <section aria-labelledby="meta-heading">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <h2 id="meta-heading" class="text-lg font-semibold tracking-tight">
+            仓库信息（自动抓取）
+          </h2>
+          <p class="text-xs text-muted-foreground">
+            以下字段由构建时从 GitHub 公开 API 抓取，不手写进数据文件；抓不到时显示「—」。
+          </p>
+        </div>
+        <dl class="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-3 lg:grid-cols-6">
+          <div class="rounded-lg border border-border p-3">
+            <dt class="text-xs text-muted-foreground">Star</dt>
+            <dd class="mt-1 font-semibold tabular-nums">{project.starsLabel ?? '—'}</dd>
+          </div>
+          <div class="rounded-lg border border-border p-3">
+            <dt class="text-xs text-muted-foreground">Fork</dt>
+            <dd class="mt-1 font-semibold tabular-nums">{project.forks ?? '—'}</dd>
+          </div>
+          <div class="rounded-lg border border-border p-3">
+            <dt class="text-xs text-muted-foreground">主语言</dt>
+            <dd class="mt-1 font-semibold">{project.language ?? '—'}</dd>
+          </div>
+          <div class="rounded-lg border border-border p-3">
+            <dt class="text-xs text-muted-foreground">许可证</dt>
+            <dd class="mt-1 font-semibold">{project.license ?? '—'}</dd>
+          </div>
+          <div class="rounded-lg border border-border p-3">
+            <dt class="text-xs text-muted-foreground">最近更新</dt>
+            <dd class="mt-1 font-semibold tabular-nums">{project.updatedAt ?? '—'}</dd>
+          </div>
+          <div class="rounded-lg border border-border p-3">
+            <dt class="text-xs text-muted-foreground">最新版本</dt>
+            <dd class="mt-1 font-semibold">{project.latestRelease?.tag ?? '—'}</dd>
+          </div>
+        </dl>
+        <p class="mt-3 text-xs text-muted-foreground">
+          仓库：
+          <a
+            class="underline underline-offset-4"
+            href={project.repoUrl}
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            {project.repo}
+          </a>
+        </p>
+      </section>
+
+      <Separator className="my-8" />
+
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <Button asChild variant="ghost" size="sm">
+          <a href="/projects/">
+            <ArrowLeft aria-hidden="true" />
+            返回全部项目
+          </a>
+        </Button>
+        <AutoMeta project={project} />
+      </div>
+    </article>
+
+    {recommendations.length > 0 && (
+      <section class="mt-14" aria-labelledby="recommend-heading">
+        <h2 id="recommend-heading" class="text-2xl font-semibold tracking-tight">
+          同类项目推荐
+        </h2>
+        <p class="mt-1 text-sm text-muted-foreground">
+          {CATEGORY_LABELS[project.category]}分类下的其他项目。
+        </p>
+        <ul class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {recommendations.map((item) => (
+            <li class="h-full">
+              <ProjectCard project={item} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </div>
+</BaseLayout>

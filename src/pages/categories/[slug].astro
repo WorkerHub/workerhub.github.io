@@ -1,0 +1,76 @@
+---
+/**
+ * 分类页（SPEC §2）：该分类下全部项目，复用 `/projects/` 的卡片与筛选组件（预置并锁定分类过滤）。
+ */
+import Explorer from '@/components/site/explorer';
+import BaseLayout from '@/layouts/base-layout.astro';
+import { buildFilterOptions, getProjectViews, summariseCategories } from '@/lib/project-view';
+import { CATEGORY_DESCRIPTIONS, CATEGORY_LABELS, type ProjectView } from '@/lib/project-types';
+import { SITE } from '@/lib/site';
+import type { Category } from '@/lib/project-schema';
+
+export async function getStaticPaths() {
+  const views = await getProjectViews();
+  return summariseCategories(views).map((category) => ({
+    params: { slug: category.slug },
+    props: { views, category: category.slug },
+  }));
+}
+
+interface Props {
+  views: ProjectView[];
+  category: Category;
+}
+
+const { views, category } = Astro.props as Props;
+const options = buildFilterOptions(views);
+const label = CATEGORY_LABELS[category];
+const description = `${CATEGORY_DESCRIPTIONS[category]}：WorkerHub 收录的${label}分类项目共 ${views.filter((view) => view.category === category).length} 个，含部署方式、所需资源与验证等级。`;
+---
+
+<BaseLayout
+  title={`${label} · 可自部署的 Cloudflare Workers 应用 | ${SITE.name}`}
+  description={description}
+  canonicalPath={`/categories/${category}/`}
+>
+  <div class="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
+    <nav aria-label="面包屑" class="text-sm text-muted-foreground">
+      <ol class="flex items-center gap-1.5">
+        <li>
+          <a class="hover:underline" href="/">
+            首页
+          </a>
+        </li>
+        <li aria-hidden="true">/</li>
+        <li>
+          <a class="hover:underline" href="/projects/">
+            全部项目
+          </a>
+        </li>
+        <li aria-hidden="true">/</li>
+        <li aria-current="page">{label}</li>
+      </ol>
+    </nav>
+
+    <h1 class="mt-3 text-3xl font-semibold tracking-tight">{label}</h1>
+    <p class="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+      {CATEGORY_DESCRIPTIONS[category]}。本分类固定预置，可继续叠加搜索、其余维度筛选与排序。
+    </p>
+
+    <div class="mt-8">
+      <Explorer
+        client:load
+        projects={views}
+        options={options}
+        lockedCategory={category}
+        initialSearch={Astro.url.search}
+      />
+    </div>
+
+    <p class="mt-10 text-sm text-muted-foreground">
+      <a class="hover:underline" href="/projects/">
+        查看全部项目 →
+      </a>
+    </p>
+  </div>
+</BaseLayout>

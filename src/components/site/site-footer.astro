@@ -1,0 +1,95 @@
+---
+/**
+ * 页脚（SPEC §8.3）：git describe 版本号 + 构建日期/时间（构建注入、源码不写死）、
+ * GitHub 组织链接、关于链接、第三方版权与责任声明。
+ */
+import { ExternalLink } from 'lucide-react';
+
+import { getBuildInfo } from '@/lib/build-info';
+import { SITE, THIRD_PARTY_DISCLAIMER } from '@/lib/site';
+
+const { version, builtAt } = getBuildInfo();
+const year = new Date().getUTCFullYear();
+---
+
+<footer class="mt-16 border-t border-border bg-muted/30">
+  <div class="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[1.5fr_1fr_1fr]">
+    <div class="space-y-2">
+      <p class="text-sm font-semibold">WorkerHub</p>
+      <p class="max-w-sm text-sm leading-6 text-muted-foreground">
+        {SITE.tagline}。本站是纯静态站点：无登录、无后端接口、不采集账号数据。
+      </p>
+      <p class="text-xs text-muted-foreground">
+        {THIRD_PARTY_DISCLAIMER}，「已验证」仅代表验证日期当天的部署实测结论。
+      </p>
+    </div>
+
+    <nav aria-label="页脚导航" class="space-y-2 text-sm">
+      <p class="text-xs font-medium tracking-wide text-muted-foreground uppercase">站内</p>
+      <ul class="space-y-1.5">
+        <li>
+          <a class="hover:underline" href="/">
+            首页
+          </a>
+        </li>
+        <li>
+          <a class="hover:underline" href="/projects/">
+            全部项目
+          </a>
+        </li>
+        <li>
+          <a class="hover:underline" href="/submit/">
+            提交收录
+          </a>
+        </li>
+        <li>
+          <a class="hover:underline" href="/about/">
+            关于 WorkerHub
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="space-y-2 text-sm">
+      <p class="text-xs font-medium tracking-wide text-muted-foreground uppercase">外部</p>
+      <ul class="space-y-1.5">
+        <li>
+          <a
+            class="inline-flex items-center gap-1 hover:underline"
+            href={SITE.githubOrg}
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            GitHub 组织
+            <ExternalLink aria-hidden="true" className="size-3" />
+          </a>
+        </li>
+        <li>
+          <a
+            class="inline-flex items-center gap-1 hover:underline"
+            href={SITE.repo}
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            本站源码 / 投稿
+            <ExternalLink aria-hidden="true" className="size-3" />
+          </a>
+        </li>
+        <li>
+          <a class="inline-flex items-center gap-1 hover:underline" href="/sitemap.xml">
+            sitemap.xml
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="border-t border-border">
+    <div class="mx-auto flex w-full max-w-6xl flex-col gap-1 px-4 py-4 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      <p>© {year} WorkerHub · 本站内容为目录与跳转，不代管任何第三方项目。</p>
+      <p class="font-mono">
+        版本 {version} · 构建于 {builtAt}
+      </p>
+    </div>
+  </div>
+</footer>

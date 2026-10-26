@@ -1,0 +1,42 @@
+---
+/**
+ * 全部项目（SPEC §2）：全量目录 + 搜索/六维筛选/排序（§8.2）。
+ * 数据以构建期 JSON 索引注入 island，所有筛选都在浏览器本地完成，零后端请求。
+ */
+import Explorer from '@/components/site/explorer';
+import BaseLayout from '@/layouts/base-layout.astro';
+import { buildFilterOptions, getProjectViews } from '@/lib/project-view';
+import { SITE } from '@/lib/site';
+
+const views = await getProjectViews();
+const options = buildFilterOptions(views);
+
+const title = `全部项目 · ${views.length} 个可自部署的 Cloudflare Workers 应用 | ${SITE.name}`;
+const description =
+  '按分类、来源、验证等级、所需资源、难度与免费层筛选全部收录项目，支持关键词搜索与多种排序；全部数据来自构建时索引，无后端请求。';
+---
+
+<BaseLayout title={title} description={description} canonicalPath="/projects/">
+  <div class="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
+    <nav aria-label="面包屑" class="text-sm text-muted-foreground">
+      <ol class="flex items-center gap-1.5">
+        <li>
+          <a class="hover:underline" href="/">
+            首页
+          </a>
+        </li>
+        <li aria-hidden="true">/</li>
+        <li aria-current="page">全部项目</li>
+      </ol>
+    </nav>
+
+    <h1 class="mt-3 text-3xl font-semibold tracking-tight">全部项目</h1>
+    <p class="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+      官方与第三方混合展示，用徽章区分来源与验证等级。筛选条件会写进地址栏，复制链接即可分享同一份筛选结果；浏览器后退可回到上一步。
+    </p>
+
+    <div class="mt-8">
+      <Explorer client:load projects={views} options={options} initialSearch={Astro.url.search} />
+    </div>
+  </div>
+</BaseLayout>

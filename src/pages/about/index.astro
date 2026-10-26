@@ -1,0 +1,173 @@
+---
+/**
+ * 关于（SPEC §2 / §6.2 / §6.3）：WorkerHub 是什么、官方与第三方的区别、
+ * 验证等级定义与免责声明、作者异议与下架通道、联系方式。
+ */
+import { ExternalLink } from 'lucide-react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import BaseLayout from '@/layouts/base-layout.astro';
+import { TIER_META } from '@/lib/project-types';
+import { SITE, THIRD_PARTY_DISCLAIMER } from '@/lib/site';
+
+const title = `关于 · ${SITE.tagline} | ${SITE.name}`;
+const description =
+  'WorkerHub 是什么、官方项目与第三方收录项目的区别、三级验证等级（官方 / 已验证 / 已收录）的定义与免责声明，以及作者异议与下架通道。';
+---
+
+<BaseLayout title={title} description={description} canonicalPath="/about/">
+  <div class="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
+    <nav aria-label="面包屑" class="text-sm text-muted-foreground">
+      <ol class="flex items-center gap-1.5">
+        <li>
+          <a class="hover:underline" href="/">
+            首页
+          </a>
+        </li>
+        <li aria-hidden="true">/</li>
+        <li aria-current="page">关于</li>
+      </ol>
+    </nav>
+
+    <h1 class="mt-3 text-3xl font-semibold tracking-tight">关于 WorkerHub</h1>
+
+    <div class="mt-6 space-y-4 text-sm leading-7">
+      <p>
+        WorkerHub 是 Cloudflare Workers 生态的中文精选应用目录：既收录 WorkerHub
+        官方自研项目，也收录经审核把关的第三方开源项目。我们不托管任何项目、不代跑任何项目，
+        也没有站内一键部署执行器——「部署到自己的账户」一律通过目标仓库的 Deploy Button、GitHub
+        Actions 或其部署文档完成。
+      </p>
+      <p>
+        本站只做三件事，缺一即不成立：<b>中文介绍</b>、<b>部署信息透明</b>（方式 / 资源 / 难度 /
+        是否免费层可跑）、<b>验证等级诚实标注</b>。
+      </p>
+      <p class="rounded-lg border border-border bg-muted/40 p-4">
+        本站是纯静态站点：<b>无登录、无账号系统、无后端接口、无数据库</b>
+        。主题偏好等设置只保存在你自己的浏览器本地。
+        不做收藏、点赞、评论，也没有站内投稿表单——投稿走 GitHub PR。
+      </p>
+    </div>
+
+    <h2 class="mt-10 text-xl font-semibold tracking-tight">官方项目与第三方项目</h2>
+    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+      <div class="rounded-xl border border-border bg-card p-4">
+        <Badge
+          variant="outline"
+          className="border-tier-official-border bg-tier-official-bg text-tier-official-fg"
+        >
+          官方
+        </Badge>
+        <h3 class="mt-3 font-semibold">官方项目</h3>
+        <p class="mt-1 text-sm leading-6 text-muted-foreground">
+          WorkerHub 自研、自己维护与部署的项目，仓库在 GitHub 的 WorkerHub
+          组织下。官方项目在任何列表中恒定带金色「官方」徽章并可置顶。
+        </p>
+      </div>
+      <div class="rounded-xl border border-border bg-card p-4">
+        <Badge
+          variant="outline"
+          className="border-tier-listed-border bg-tier-listed-bg text-tier-listed-fg"
+        >
+          第三方 · 已收录
+        </Badge>
+        <h3 class="mt-3 font-semibold">第三方项目</h3>
+        <p class="mt-1 text-sm leading-6 text-muted-foreground">
+          别人开发、可自部署在 Cloudflare Workers / Pages 上的开源项目，经本站按收录门槛审核后收录。
+          条目一律指向上游原仓库，star、许可证与部署入口都以上游为准。
+        </p>
+      </div>
+    </div>
+
+    <h2 class="mt-10 text-xl font-semibold tracking-tight">验证等级</h2>
+    <p class="mt-2 text-sm leading-7 text-muted-foreground">
+      等级决定你该以什么心态点开这个项目：绿色代表本站真的部署成功过，灰色代表只是通过了审核、没有实测。
+    </p>
+    <dl class="mt-4 space-y-3">
+      <div class="rounded-xl border border-border p-4">
+        <dt class="flex flex-wrap items-center gap-2">
+          <Badge
+            variant="outline"
+            className="border-tier-official-border bg-tier-official-bg text-tier-official-fg"
+          >
+            {TIER_META.official.label}
+          </Badge>
+          <span class="text-sm font-medium">WorkerHub 自研项目</span>
+        </dt>
+        <dd class="mt-1 text-sm leading-6 text-muted-foreground">
+          {TIER_META.official.description}
+        </dd>
+      </div>
+      <div class="rounded-xl border border-border p-4">
+        <dt class="flex flex-wrap items-center gap-2">
+          <Badge
+            variant="outline"
+            className="border-tier-verified-border bg-tier-verified-bg text-tier-verified-fg"
+          >
+            {TIER_META.verified.label}
+          </Badge>
+          <span class="text-sm font-medium">本站实测部署过</span>
+        </dt>
+        <dd class="mt-1 text-sm leading-6 text-muted-foreground">
+          {TIER_META.verified.description}详情页会给出验证日期与验证记录链接。
+        </dd>
+      </div>
+      <div class="rounded-xl border border-border p-4">
+        <dt class="flex flex-wrap items-center gap-2">
+          <Badge
+            variant="outline"
+            className="border-tier-listed-border bg-tier-listed-bg text-tier-listed-fg"
+          >
+            {TIER_META.listed.label}
+          </Badge>
+          <span class="text-sm font-medium">默认等级：仅通过审核</span>
+        </dt>
+        <dd class="mt-1 text-sm leading-6 text-muted-foreground">{TIER_META.listed.description}</dd>
+      </div>
+    </dl>
+
+    <h2 class="mt-10 text-xl font-semibold tracking-tight">免责声明</h2>
+    <div class="mt-3 space-y-3 text-sm leading-7">
+      <p>
+        <b>{THIRD_PARTY_DISCLAIMER}</b>
+        。本站不对第三方项目的质量、安全性、维护状态与许可证合规做担保，只如实转述其仓库与文档中的信息。
+      </p>
+      <p>
+        即使标注「已验证」，也只代表<b>验证日期当天按项目文档完成过一次部署</b>
+        ，不代表此后版本、依赖或平台策略变化后仍然可用。 部署到自己的 Cloudflare
+        账户意味着资源成本与数据安全都由你自己承担。
+      </p>
+      <p>
+        收录信息中的 star、fork、主语言、许可证、最近更新等为构建时从 GitHub 公开 API
+        自动抓取，可能滞后；以仓库实际状态为准。
+      </p>
+    </div>
+
+    <h2 class="mt-10 text-xl font-semibold tracking-tight">异议与下架</h2>
+    <p class="mt-2 text-sm leading-7">
+      如果你是收录项目的作者，对收录、文案描述或等级标注有异议，或者希望本站移除你的项目， 请在
+      WorkerHub 仓库开 issue 说明，我们会跟进处理。仓库删除或转私有、许可证改为闭源、
+      被证实无法部署且作者不修复、或作者本人要求移除的项目，会被下架处理。
+    </p>
+
+    <h2 class="mt-10 text-xl font-semibold tracking-tight">联系方式</h2>
+    <div class="mt-3 flex flex-wrap gap-2">
+      <Button asChild variant="outline">
+        <a href={SITE.githubOrg} target="_blank" rel="noreferrer noopener">
+          GitHub 组织
+          <ExternalLink aria-hidden="true" />
+        </a>
+      </Button>
+      <Button asChild variant="outline">
+        <a href={`${SITE.repo}/issues`} target="_blank" rel="noreferrer noopener">
+          仓库 issue（异议 / 反馈 / 收录申请）
+          <ExternalLink aria-hidden="true" />
+        </a>
+      </Button>
+      <Button asChild variant="ghost">
+        <a href="/submit/">提交收录</a>
+      </Button>
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,110 @@
+---
+/**
+ * 提交收录（SPEC §2 / §7）：渲染版 CONTRIBUTING.md，与仓库根文件同源、不分叉。
+ *
+ * 构建时直接读仓库根 `CONTRIBUTING.md`（投稿基建子单交付位置，契约不得私改），
+ * 用 marked 转 HTML。文件尚未合入时本页显示占位说明，文件合入后**无需改代码**自动接线。
+ */
+import { existsSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { marked } from 'marked';
+import { ExternalLink, FileText, GitPullRequest } from 'lucide-react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import BaseLayout from '@/layouts/base-layout.astro';
+import { SITE } from '@/lib/site';
+
+const CONTRIBUTING_PATH = resolve('CONTRIBUTING.md');
+const hasContributing = existsSync(CONTRIBUTING_PATH);
+// 仓库内自有文件，内容受版本控制与评审约束，构建期直接渲染
+const contributingHtml = hasContributing
+  ? (marked.parse(readFileSync(CONTRIBUTING_PATH, 'utf8'), { async: false }) as string)
+  : '';
+
+const title = `提交收录 · 收录标准与投稿步骤 | ${SITE.name}`;
+const description =
+  'WorkerHub 收录标准（五条门槛）、数据文件字段说明、验证等级说明与投稿 PR 步骤；投稿只需要新增一个数据文件，页面内容与仓库 CONTRIBUTING.md 同源。';
+---
+
+<BaseLayout title={title} description={description} canonicalPath="/submit/">
+  <div class="mx-auto w-full max-w-4xl px-4 py-10 sm:px-6">
+    <nav aria-label="面包屑" class="text-sm text-muted-foreground">
+      <ol class="flex items-center gap-1.5">
+        <li>
+          <a class="hover:underline" href="/">
+            首页
+          </a>
+        </li>
+        <li aria-hidden="true">/</li>
+        <li aria-current="page">提交收录</li>
+      </ol>
+    </nav>
+
+    <h1 class="mt-3 text-3xl font-semibold tracking-tight">提交收录</h1>
+    <p class="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+      投稿 = 向 WorkerHub 仓库提一个 PR，只新增
+      <code class="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">
+        src/data/projects/&lt;slug&gt;.yaml
+      </code>
+      数据文件（可选附带截图），不在投稿 PR 里改代码。CI 会自动校验
+      schema、仓库可达性、条件必填与外链。
+    </p>
+
+    <div class="mt-6 flex flex-wrap gap-2">
+      <Button asChild>
+        <a href={`${SITE.repo}/pulls`} target="_blank" rel="noreferrer noopener">
+          <GitPullRequest aria-hidden="true" />
+          去仓库提 PR
+        </a>
+      </Button>
+      <Button asChild variant="outline">
+        <a
+          href={`${SITE.repo}/blob/main/CONTRIBUTING.md`}
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          <FileText aria-hidden="true" />
+          查看 CONTRIBUTING.md
+        </a>
+      </Button>
+      <Button asChild variant="ghost">
+        <a href={`${SITE.repo}/issues`} target="_blank" rel="noreferrer noopener">
+          <ExternalLink aria-hidden="true" />
+          作者异议 / 问题反馈
+        </a>
+      </Button>
+    </div>
+
+    {hasContributing ? (
+      <article
+        class="mt-8 rounded-xl border border-border bg-card p-6"
+        aria-label="收录标准与投稿步骤"
+      >
+        <p class="mb-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <Badge variant="secondary" className="font-normal">
+            同源渲染
+          </Badge>
+          以下内容来自仓库根 <code class="font-mono">CONTRIBUTING.md</code>，与本页一一对应。
+        </p>
+        <div class="doc-prose" set:html={contributingHtml} />
+      </article>
+    ) : (
+      <div class="mt-8 rounded-xl border border-dashed border-border p-6">
+        <h2 class="text-lg font-semibold">收录标准与投稿步骤正在同步</h2>
+        <p class="mt-2 text-sm leading-7 text-muted-foreground">
+          本页与仓库根 <code class="font-mono">CONTRIBUTING.md</code>{' '}
+          同源渲染，该文件尚未进入当前分支，
+          因此这里暂时是占位内容。文件合入后，本页会在下一次构建时自动展示完整正文，无需改代码。
+        </p>
+        <p class="mt-3 text-sm leading-7 text-muted-foreground">
+          在此之前，收录门槛、字段说明与验证等级定义可先看
+          <a class="font-medium underline underline-offset-4" href="/about/">
+            关于页面
+          </a>
+          ； 投稿仍然是一个只新增数据文件的 PR。
+        </p>
+      </div>
+    )}
+  </div>
+</BaseLayout>
