@@ -9,6 +9,10 @@
  *   - `repo` 不存在 / 私有 / 无法核验 → **硬拦**（error）
  *   - 外链失败 → **默认只警告**，由评审人人工确认；
  *     但「官方项目的全部外链」与「任何项目的演示站（homepage）」失败 → **硬拦**（error）
+ *   - 例外（返工口径，见 ONE-449）：外链返回 **HTTP 403** 时一律降级为 warning。
+ *     CDN（Cloudflare Pages 等）的 bot 防护会拒绝 CI runner 出口 IP，403 说明站点在线、
+ *     只是不许探针访问，不构成「不可达」结论；输出保留站点名与状态码供人眼复核。
+ *     真不可达（DNS / 连接失败 / 超时）与 404 仍按上面的分级判 fail。
  *   - 截图不合规 → **硬拦**（error）
  *
  * 校验函数全部是「注入 fetch / 注入目录」的纯逻辑，磁盘与网络都在边界上，便于单测与演练。
@@ -25,6 +29,8 @@ export const SCREENSHOT_REQUIRED_EXT = '.webp';
 
 export const DEFAULT_LINK_TIMEOUT_MS = 8_000;
 export const DEFAULT_LINK_CONCURRENCY = 6;
+/** CDN bot 防护拒绝 CI 探针时返回的状态码：不判「不可达」，降级为 warning */
+export const BOT_PROTECTION_STATUS = 403;
 export const DEFAULT_API_BASE = 'https://api.github.com';
 const USER_AGENT = 'workerhub-hub-ci (+https://hub.oneboy.app)';
 
@@ -243,6 +249,8 @@ export function collectLinks(data: ProjectInput): ProjectLink[] {
  * 外链失败时的严重级别（§7 原文）：
  * 「失败给 warning 不硬拦（评审人人工确认）；官方项目与演示站链接失败则硬拦」。
  * 即：`source=official` 的任何外链、以及任何项目的 `homepage`（官网/演示站）→ error。
+ *
+ * 注意：这只是基础分级；HTTP 403（bot 防护）的例外由 `resolveLinkFailureSeverity` 叠加。
  */
 export const linkFailureSeverity = (data: ProjectInput, field: LinkField): Severity =>
   data.source === 'official' || field === 'homepage' ? 'error' : 'warning';
@@ -251,7 +259,23 @@ export interface LinkProbeResult {
   url: string;
   ok: boolean;
   detail: string;
+  /** HTTP 状态码；请求本身失败（DNS / 连接 / 超时）时为 undefined */
+  status?: number;
 }
+
+/** 是否为 CDN bot 防护产生的 403（站点在线、只是拒绝 CI 探针） */
+export const isBotProtectionStatus = (status: number | undefined): boolean =>
+  status === BOT_PROTECTION_STATUS;
+
+/**
+ * 外链失败后的最终严重级别：§7 基础分级之上叠加 403 例外。
+ * 403 → warning（不判 fail），其余状态一律沿用 `linkFailureSeverity`（真不可达 / 404 仍按 §7 判 fail）。
+ */
+export const resolveLinkFailureSeverity = (
+  data: ProjectInput,
+  field: LinkField,
+  status?: number,
+): Severity => (isBotProtectionStatus(status) ? 'warning' : linkFailureSeverity(data, field));
 
 /** 探测单条外链是否可达（2xx/3xx 视为可达；跟随重定向） */
 export async function probeUrl(url: string, options: HttpOptions = {}): Promise<LinkProbeResult> {
@@ -267,9 +291,9 @@ export async function probeUrl(url: string, options: HttpOptions = {}): Promise<
   }
 
   if (response.status >= 200 && response.status < 400) {
-    return { url, ok: true, detail: `HTTP ${response.status}` };
+    return { url, ok: true, detail: `HTTP ${response.status}`, status: response.status };
   }
-  return { url, ok: false, detail: `HTTP ${response.status}` };
+  return { url, ok: false, detail: `HTTP ${response.status}`, status: response.status };
 }
 
 /** 逐项目逐链接探测（并发受限），按 §7 分级产出 findings */
@@ -294,10 +318,12 @@ export async function checkLinks(
     );
     for (const { target, link, probe } of results) {
       if (probe.ok) continue;
-      const severity = linkFailureSeverity(target.data, link.field);
-      const message = `外链不可达（${link.field}，${probe.detail}）${
-        severity === 'warning' ? '：投稿者可稍后修正，评审人需人工确认链接是否长期失效' : ''
-      }`;
+      const severity = resolveLinkFailureSeverity(target.data, link.field, probe.status);
+      const message = isBotProtectionStatus(probe.status)
+        ? `站点 ${target.data.name} 的 ${link.field} 返回 HTTP ${probe.status}（CDN bot 防护拦截 CI 探针，站点在线、不判不可达）：已降级为警告，需人工复核该链接`
+        : `外链不可达（${link.field}，${probe.detail}）${
+            severity === 'warning' ? '：投稿者可稍后修正，评审人需人工确认链接是否长期失效' : ''
+          }`;
       findings.push(
         severity === 'error'
           ? errorFinding('links', target, link.url, message)
