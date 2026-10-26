@@ -3,7 +3,10 @@
  * 全部走真实 `tsx scripts/validate-submission.ts` 进程，只把网络与目录换成夹具/不可达地址。
  */
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { createServer } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { join } from 'node:path';
 import { test } from 'node:test';
 
@@ -28,6 +31,27 @@ const run = (args: string[], env: Record<string, string> = {}): RunResult => {
   );
   return { status: result.status, output: `${result.stdout ?? ''}${result.stderr ?? ''}` };
 };
+
+/** 异步版：需要本地 HTTP 服务在 CLI 子进程运行期间保持可响应时用（spawnSync 会堵死父进程事件循环） */
+const runAsync = (args: string[], env: Record<string, string> = {}): Promise<RunResult> =>
+  new Promise((resolve, reject) => {
+    const child = spawn(
+      process.execPath,
+      ['--import', 'tsx', 'scripts/validate-submission.ts', ...args],
+      { cwd: ROOT, env: { ...process.env, GITHUB_TOKEN: '', ...env } },
+    );
+    let output = '';
+    child.stdout.setEncoding('utf8');
+    child.stderr.setEncoding('utf8');
+    child.stdout.on('data', (chunk: string) => {
+      output += chunk;
+    });
+    child.stderr.on('data', (chunk: string) => {
+      output += chunk;
+    });
+    child.on('error', reject);
+    child.on('close', (status) => resolve({ status, output }));
+  });
 
 test('§7 截图不合规 → CLI 失败并逐条点名原因（宽不足 / 超体积 / 假 webp）', () => {
   const result = run(['--checks=screenshots'], {
@@ -76,6 +100,60 @@ test('§7 --fail-on-warnings 把外链警告升级为失败（维护者本地复
   });
   assert.equal(result.status, 1);
   assert.match(result.output, /警告 2 项/);
+});
+
+test('ONE-449 官方演示站 403（bot 防护）→ CLI 退出码 0，日志可见站点名与 403', async () => {
+  // 本地服务固定回 403，模拟 Cloudflare bot 防护对 CI runner 出口 IP 的拒绝
+  const server = createServer((_request, response) => {
+    response.writeHead(403, { 'content-type': 'text/html; charset=utf-8' });
+    response.end('<html><body>error 403</body></html>');
+  });
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const { port } = server.address() as AddressInfo;
+
+  const projectsDir = join(ROOT, 'tests', '.tmp', 'bot-protected');
+  try {
+    mkdirSync(projectsDir, { recursive: true });
+    writeFileSync(
+      join(projectsDir, 'drill-bot-protected.yaml'),
+      [
+        'slug: drill-bot-protected',
+        'name: Drill Bot Protected',
+        'repo: WorkerHub/hub-drill-official',
+        'source: official',
+        'tagline_zh: 演练用官方条目，演示站被 bot 防护拦截。',
+        'description_zh: 第一条说明句。第二条说明句。',
+        'features:',
+        '  - 特性一',
+        '  - 特性二',
+        '  - 特性三',
+        'tags:',
+        '  - drill',
+        'category: notification',
+        `homepage: http://127.0.0.1:${port}/demo`,
+        'deploy:',
+        '  method: docs-only',
+        'resources:',
+        '  - d1',
+        'difficulty: 2',
+        'free_tier: yes',
+        'tier: official',
+        'added_at: 2026-10-26',
+        '',
+      ].join('\n'),
+      'utf8',
+    );
+
+    const result = await runAsync(['--checks=links'], { HUB_PROJECTS_DIR: projectsDir });
+    assert.equal(result.status, 0, result.output);
+    assert.match(result.output, /警告 1 项/);
+    assert.match(result.output, /Drill Bot Protected/);
+    assert.match(result.output, /403/);
+    assert.match(result.output, /降级为警告/);
+  } finally {
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+    rmSync(projectsDir, { recursive: true, force: true });
+  }
 });
 
 test('未知检查项 → 退出码 2（参数错误，不误报成数据错误）', () => {

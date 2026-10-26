@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import { projectSchema, type ProjectInput } from '../src/lib/project-schema.js';
 import {
+  BOT_PROTECTION_STATUS,
   SCREENSHOT_MAX_BYTES,
   checkLinks,
   checkRepoAccess,
@@ -14,8 +15,10 @@ import {
   checkScreenshots,
   collectLinks,
   formatFindings,
+  isBotProtectionStatus,
   linkFailureSeverity,
   probeUrl,
+  resolveLinkFailureSeverity,
   screenshotFileName,
   summarize,
   type CheckTarget,
@@ -234,6 +237,109 @@ test('§7 官方项目 / 演示站链接失败 → error（硬拦）', async () 
   );
   assert.equal(findings.length, 2);
   assert.ok(findings.every((finding) => finding.severity === 'error'));
+});
+
+test('ONE-449 HTTP 403（bot 防护）→ 官方演示站也降级为 warning，不判 fail', async () => {
+  const findings = await checkLinks(
+    [
+      target({
+        slug: 'enotify',
+        name: 'eNotify',
+        repo: 'WorkerHub/eNotify',
+        source: 'official',
+        tier: 'official',
+        homepage: 'https://enotify.oneboy.app',
+      }),
+      target({
+        slug: 'post',
+        name: 'post',
+        repo: 'WorkerHub/post',
+        source: 'official',
+        tier: 'official',
+        homepage: 'https://post.oneboy.app',
+      }),
+    ],
+    {
+      fetchImpl: async () => new Response('forbidden', { status: 403 }),
+      retries: 0,
+    },
+  );
+
+  assert.equal(findings.length, 2);
+  assert.ok(findings.every((finding) => finding.severity === 'warning'));
+  assert.equal(summarize(findings).errors.length, 0);
+
+  const log = formatFindings(summarize(findings));
+  // 输出保留站点名与 403 状态码，供人眼复核
+  assert.match(log, /⚠ \[links\] enotify\.yaml（enotify）.*eNotify.*403/);
+  assert.match(log, /⚠ \[links\] post\.yaml（post）.*post.*403/);
+});
+
+test('ONE-449 403 例外只针对 403：真不可达与 404 依旧判 fail（fail 分支未被放宽）', async () => {
+  const officialHome = { slug: 'dead-home', homepage: 'https://dead.example.com' };
+
+  const refused = await checkLinks([target(officialHome)], {
+    retries: 0,
+    fetchImpl: async () => {
+      throw new TypeError('fetch failed');
+    },
+  });
+  assert.equal(refused.length, 1);
+  assert.equal(refused[0]!.severity, 'error');
+  assert.match(refused[0]!.message, /请求失败/);
+
+  const notFound = await checkLinks([target(officialHome)], {
+    retries: 0,
+    fetchImpl: async () => new Response('nope', { status: 404 }),
+  });
+  assert.equal(notFound.length, 1);
+  assert.equal(notFound[0]!.severity, 'error');
+  assert.match(notFound[0]!.message, /404/);
+
+  const serverError = await checkLinks([target(officialHome)], {
+    retries: 0,
+    fetchImpl: async () => new Response('boom', { status: 500 }),
+  });
+  assert.equal(serverError[0]!.severity, 'error');
+});
+
+test('resolveLinkFailureSeverity：仅 403 降级，其余沿用 §7 基础分级', () => {
+  const official = baseProject({
+    source: 'official',
+    repo: 'WorkerHub/eNotify',
+    tier: 'official',
+  });
+  assert.equal(BOT_PROTECTION_STATUS, 403);
+  assert.equal(isBotProtectionStatus(403), true);
+  assert.equal(isBotProtectionStatus(404), false);
+  assert.equal(isBotProtectionStatus(undefined), false);
+
+  assert.equal(resolveLinkFailureSeverity(official, 'homepage', 403), 'warning');
+  assert.equal(resolveLinkFailureSeverity(official, 'homepage', 404), 'error');
+  assert.equal(resolveLinkFailureSeverity(official, 'homepage'), 'error');
+  assert.equal(resolveLinkFailureSeverity(baseProject(), 'docs_url', 403), 'warning');
+  assert.equal(resolveLinkFailureSeverity(baseProject(), 'docs_url', 503), 'warning');
+
+  // 基础分级本身不变（§7 原文口径）
+  assert.equal(linkFailureSeverity(official, 'homepage'), 'error');
+});
+
+test('probeUrl：403 视为不可达但带上状态码，供上层降级判断', async () => {
+  const forbidden = await probeUrl('https://enotify.oneboy.app', {
+    fetchImpl: async () => new Response('forbidden', { status: 403 }),
+  });
+  assert.equal(forbidden.ok, false);
+  assert.equal(forbidden.status, 403);
+  assert.match(forbidden.detail, /403/);
+
+  const failed = await probeUrl('http://127.0.0.1:9/', {
+    retries: 0,
+    fetchImpl: async () => {
+      throw new TypeError('fetch failed');
+    },
+  });
+  assert.equal(failed.ok, false);
+  assert.equal(failed.status, undefined);
 });
 
 // ---------------------------------------------------------------------------
