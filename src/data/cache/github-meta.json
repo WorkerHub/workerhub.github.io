@@ -1,6 +1,95 @@
 {
   "schemaVersion": 1,
   "repos": {
+    "WorkerHub/Zeta": {
+      "stargazersCount": 0,
+      "forksCount": 0,
+      "language": "TypeScript",
+      "license": "MIT",
+      "pushedAt": "2026-10-26T06:04:13Z",
+      "archived": false,
+      "latestRelease": {
+        "tag": "v1.2.0",
+        "publishedAt": "2026-10-24T02:39:48Z"
+      },
+      "openGraphImage": "https://opengraph.githubassets.com/1/WorkerHub/Zeta",
+      "fetchedAt": "2026-10-26T07:15:35.448Z"
+    },
+    "WorkerHub/eNotify": {
+      "stargazersCount": 0,
+      "forksCount": 0,
+      "language": "TypeScript",
+      "license": "MIT",
+      "pushedAt": "2026-10-26T06:49:28Z",
+      "archived": false,
+      "latestRelease": {
+        "tag": "v1.0.4",
+        "publishedAt": "2026-10-18T03:48:01Z"
+      },
+      "openGraphImage": "https://opengraph.githubassets.com/1/WorkerHub/eNotify",
+      "fetchedAt": "2026-10-26T07:15:32.732Z"
+    },
+    "WorkerHub/hop": {
+      "stargazersCount": 0,
+      "forksCount": 1,
+      "language": "TypeScript",
+      "license": "MIT",
+      "pushedAt": "2026-10-26T05:37:58Z",
+      "archived": false,
+      "latestRelease": {
+        "tag": "v1.1.0",
+        "publishedAt": "2026-10-24T02:39:02Z"
+      },
+      "openGraphImage": "https://opengraph.githubassets.com/1/WorkerHub/hop",
+      "fetchedAt": "2026-10-26T07:15:33.901Z"
+    },
+    "WorkerHub/lx-music-server": {
+      "stargazersCount": 24,
+      "forksCount": 37,
+      "language": "TypeScript",
+      "license": "NOASSERTION",
+      "pushedAt": "2026-10-26T01:39:39Z",
+      "archived": false,
+      "latestRelease": {
+        "tag": "v1.3.1",
+        "publishedAt": "2026-10-25T10:43:06Z"
+      },
+      "openGraphImage": "https://opengraph.githubassets.com/1/WorkerHub/lx-music-server",
+      "fetchedAt": "2026-10-26T07:15:33.901Z"
+    },
+    "WorkerHub/nav": {
+      "stargazersCount": 0,
+      "forksCount": 0,
+      "language": "TypeScript",
+      "license": null,
+      "pushedAt": "2026-10-25T23:56:57Z",
+      "archived": false,
+      "latestRelease": null,
+      "openGraphImage": "https://opengraph.githubassets.com/1/WorkerHub/nav",
+      "fetchedAt": "2026-10-26T07:15:34.011Z"
+    },
+    "WorkerHub/post": {
+      "stargazersCount": 0,
+      "forksCount": 0,
+      "language": "TypeScript",
+      "license": null,
+      "pushedAt": "2026-10-26T04:13:45Z",
+      "archived": false,
+      "latestRelease": null,
+      "openGraphImage": "https://opengraph.githubassets.com/1/WorkerHub/post",
+      "fetchedAt": "2026-10-26T07:15:34.286Z"
+    },
+    "WorkerHub/waker": {
+      "stargazersCount": 0,
+      "forksCount": 0,
+      "language": "TypeScript",
+      "license": null,
+      "pushedAt": "2026-10-26T07:02:47Z",
+      "archived": false,
+      "latestRelease": null,
+      "openGraphImage": "https://opengraph.githubassets.com/1/WorkerHub/waker",
+      "fetchedAt": "2026-10-26T07:15:35.466Z"
+    },
     "aozorae/Edgechat": {
       "stargazersCount": 1349,
       "forksCount": 533,
@@ -10,7 +99,7 @@
       "archived": false,
       "latestRelease": null,
       "openGraphImage": "https://opengraph.githubassets.com/1/aozorae/Edgechat",
-      "fetchedAt": "2026-10-26T06:55:10.614Z"
+      "fetchedAt": "2026-10-26T07:15:32.790Z"
     },
     "lyc8503/UptimeFlare": {
       "stargazersCount": 3903,
@@ -21,11 +110,11 @@
       "archived": false,
       "latestRelease": null,
       "openGraphImage": "https://opengraph.githubassets.com/1/lyc8503/UptimeFlare",
-      "fetchedAt": "2026-10-26T06:55:10.612Z"
+      "fetchedAt": "2026-10-26T07:15:35.830Z"
     },
     "maillab/cloud-mail": {
       "stargazersCount": 14955,
-      "forksCount": 22785,
+      "forksCount": 22786,
       "language": "JavaScript",
       "license": "MIT",
       "pushedAt": "2026-10-25T18:37:03Z",
@@ -35,10 +124,10 @@
         "publishedAt": "2026-10-23T07:23:07Z"
       },
       "openGraphImage": "https://opengraph.githubassets.com/1/maillab/cloud-mail",
-      "fetchedAt": "2026-10-26T06:55:10.730Z"
+      "fetchedAt": "2026-10-26T07:15:32.704Z"
     },
     "tianma-if/edgeever": {
-      "stargazersCount": 2851,
+      "stargazersCount": 2856,
       "forksCount": 1413,
       "language": "TypeScript",
       "license": "AGPL-3.0",
@@ -49,7 +138,7 @@
         "publishedAt": "2026-10-26T05:12:54Z"
       },
       "openGraphImage": "https://opengraph.githubassets.com/1/tianma-if/edgeever",
-      "fetchedAt": "2026-10-26T06:55:10.615Z"
+      "fetchedAt": "2026-10-26T07:15:32.749Z"
     }
   }
 }

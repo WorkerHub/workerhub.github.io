@@ -1,0 +1,31 @@
+slug: lx-music-server
+name: lx-music-server
+repo: WorkerHub/lx-music-server
+source: official
+tagline_zh: LX Music 官方同步服务的 Cloudflare Workers 重构版
+description_zh: >-
+  lx-music-server 是 LX Music 官方同步服务的 Cloudflare Workers 重构版：用 Durable Objects 提供有状态的
+  WebSocket 同步，歌单与「不喜欢」规则在多设备间实时互通，不需要另租一台常驻服务器。
+  每个用户拥有独立的 DO 实例与存储，支持多设备增量同步、快照合并与冲突处理，另带管理面板与设备管理 API。
+features:
+  - 每个用户独立 Durable Object 实例与存储，多用户互相隔离
+  - WebSocket 实时同步歌单与不喜欢规则，支持增量快照合并
+  - 管理面板与设备管理 API，可查看、踢出已授权设备
+  - README 提供 KV、API Token 与 Secrets 的完整部署步骤，由 GitHub Actions 部署上线
+category: files-media
+tags:
+  - 音乐
+  - 同步
+  - Durable Objects
+docs_url: https://github.com/WorkerHub/lx-music-server#部署指南
+deploy:
+  method: github-actions
+  guide_url: https://github.com/WorkerHub/lx-music-server#部署指南
+resources:
+  - durable-objects
+difficulty: 2
+free_tier: yes
+tier: official
+featured: false
+added_at: 2026-10-26
+status: active

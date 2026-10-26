@@ -1,0 +1,34 @@
+slug: post
+name: 时光邮局
+repo: WorkerHub/post
+source: official
+tagline_zh: 写给未来的信：定时投递、多收件人、公开信墙
+description_zh: >-
+  时光邮局让你把一封信寄给未来的某一天：写完内容、选定投递日期时间，到点由定时任务自动发出。
+  支持多用户与多收件人，可把信件公开到信墙供他人浏览；待投递的信件按投递时间排队，cron 每 5 分钟扫描一次。
+  运行在 Cloudflare Workers + D1 上，初始化通过 setup 接口按密钥完成。
+features:
+  - 定时投递：自选未来日期时间，到期自动发出
+  - 多用户、多收件人，适合小圈子共用的寄信服务
+  - 公开信墙：可公开分享的信件集中展示
+  - Cloudflare 原生：Workers + D1，cron 每 5 分钟扫描一次待投递信件
+category: life
+tags:
+  - 写信
+  - 定时投递
+  - 邮件
+homepage: https://post.oneboy.app
+docs_url: https://github.com/WorkerHub/post#部署
+deploy:
+  method: github-actions
+  guide_url: https://github.com/WorkerHub/post#部署
+resources:
+  - d1
+  - kv
+  - cron
+difficulty: 2
+free_tier: yes
+tier: official
+featured: false
+added_at: 2026-10-26
+status: active
