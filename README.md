@@ -77,7 +77,7 @@ astro build                         每项目详情页 / 列表页读「人工�
 | `HUB_PROJECTS_DIR`       | `src/data/projects`               | 数据文件目录（演练/测试用）                                                        |
 | `HUB_META_CACHE`         | `src/data/cache/github-meta.json` | 自动字段缓存位置                                                                   |
 | `HUB_META_REPORT`        | `github-meta-report.json`         | 本次抓取报告（未入库，CI 可取用）                                                  |
-| `HUB_VERSION`            | 空                                | 覆盖页脚版本号；缺省现场取 `git describe --tags --always --dirty`                  |
+| `HUB_VERSION`            | 空                                | 覆盖页脚版本号（回退链最优先一级）；缺省按 `build-info.ts` 的回退链取值            |
 | `HUB_SKIP_OG`            | 空                                | 置 `1` 跳过 OG 图本地化（离线构建/演练用；缺图自动回退首字图）                     |
 | `HUB_OG_FORCE`           | 空                                | 置 `1` 强制重新抓取仓库 OG 图                                                      |
 | `HUB_OG_REPORT`          | `og-report.json`                  | 本次 OG 图本地化报告（未入库）                                                     |
@@ -207,7 +207,7 @@ tests/                      单测 + 进程级集成测试 + 夹具
 - **构建摘要必含**（§9.2 / §9.3）：自动字段刷新结果（成功 / 缓存兜底 / 降级置空 / 数据错误 + 逐项降级原因）、archive 与超过 365 天未更新的异常项目清单、外链巡检结果与**连续失败点名**（阈值：连续 2 次）、两侧发布结果。
 - **不自动改数据**：异常项目与坏链只进摘要，是否下架/修正走人工数据 PR；工作流**不向 `main` 写提交**（自动字段缓存如有变化，作为 `reports` 产物上传，由维护者随数据 PR 提交）。
 - **密钥红线**：CF Pages deploy hook URL 只放 GitHub Secrets，名为 `CLOUDFLARE_PAGES_DEPLOY_HOOK`；`build` 里有一道自检，扫到仓库文件里出现 deploy hook URL 直接失败；日志只打印 HTTP 状态码，不回显 URL。
-- **版本号一致性**（§12 第 10 条）：页脚版本号 = 构建时 `git describe --tags --always`（`src/lib/build-info.ts`）。两侧都从同一提交构建，所以值相同；需要固定时可用 `HUB_VERSION` 覆盖。刻意**不用 `--dirty`**：构建本身会改写自动字段缓存文件，带 `--dirty` 会让每次 CI 构建都得到 `<sha>-dirty`，两侧无法比较。
+- **版本号一致性**（§12 第 10 条）：页脚版本号由 `src/lib/build-info.ts` 一段代码统一取值，主站与镜像共用、优先级相同，回退链为 ① `HUB_VERSION` → ② `git describe --tags --always` → ③ `CF_PAGES_COMMIT_SHA` 截 7 位 → ④ `v0.0.0-dev`。镜像侧走 Actions 完整历史，命中 ②；主站侧 CF Pages 是浅克隆，`git describe` 必然失败，由 CF Pages 构建环境自带的 `CF_PAGES_COMMIT_SHA` 截 7 位接住，形态与 ② 的短 SHA 一致，两侧页脚可比对。**生产不需要也不应该在控制台手填 `HUB_VERSION`**（① 只留给本地/特殊覆盖）。刻意**不用 `--dirty`**：构建本身会改写自动字段缓存文件，带 `--dirty` 会让每次 CI 构建都得到 `<sha>-dirty`，两侧无法比较。
 
 ### 演练（不发出真实发布）
 

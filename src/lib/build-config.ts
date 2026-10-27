@@ -8,7 +8,7 @@
  *   GITHUB_API_BASE   GitHub API 基址（默认 https://api.github.com；演练时指向不可达地址）
  *   GITHUB_TOKEN      CI 工作流自带只读 token（可选，本地缺省走未认证额度）
  *   HUB_SKIP_FETCH    置 1 时完全跳过抓取，只用缓存/空值（演练降级路径最简方式）
- *   HUB_VERSION       覆盖页脚版本号（CI 注入 git describe；本地缺省现场取）
+ *   HUB_VERSION       覆盖页脚版本号（优先级最高；生产不用于钉死版本，取值链见 build-info.ts）
  */
 import { resolve } from 'node:path';
 
