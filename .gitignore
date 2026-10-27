@@ -14,6 +14,9 @@ og-report.json
 .DS_Store
 *.log
 
+# Cloudflare wrangler 本地状态（部署缓存/本地 dev 产物，不入库）
+.wrangler/
+
 # 测试临时目录
 tests/.tmp/
 
