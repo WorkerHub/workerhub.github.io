@@ -55,7 +55,7 @@ const latest = sortProjects(views, 'added').slice(0, 8);
         可自部署的 Cloudflare Workers 应用，一处找齐
       </h1>
       <p class="mt-4 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
-        官方自研项目 + 经收录把关的第三方开源项目。每个条目都标清
+        自研项目 + 经收录把关的第三方开源项目。每个条目都标清
         <b class="text-foreground">部署方式、所需资源、难度、免费层与验证等级</b>
         ，从卡片直达仓库与部署入口，把项目部署到你自己的 Cloudflare 账户。
       </p>
@@ -86,7 +86,7 @@ const latest = sortProjects(views, 'added').slice(0, 8);
 
       <dl class="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm">
         <div class="flex items-baseline gap-2">
-          <dt class="text-muted-foreground">官方项目</dt>
+          <dt class="text-muted-foreground">自研项目</dt>
           <dd class="text-xl font-semibold tabular-nums">{stats.official}</dd>
         </div>
         <div class="flex items-baseline gap-2">
@@ -114,17 +114,17 @@ const latest = sortProjects(views, 'added').slice(0, 8);
     <div class="flex flex-wrap items-end justify-between gap-3">
       <div>
         <h2 id="official-heading" class="text-2xl font-semibold tracking-tight">
-          官方项目
+          自研项目
         </h2>
         <p class="mt-1 text-sm text-muted-foreground">
-          WorkerHub 自研项目，由我们自己维护与部署；金色徽章 = 官方。
+          WorkerHub 自研项目，由我们自己维护与部署；金色徽章 = 自研。
         </p>
       </div>
       <a
         href="/projects/?src=official"
         class="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
       >
-        只看官方
+        只看自研
         <ArrowRight aria-hidden="true" className="size-3.5" />
       </a>
     </div>

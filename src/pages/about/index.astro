@@ -13,7 +13,7 @@ import { SITE, THIRD_PARTY_DISCLAIMER } from '@/lib/site';
 
 const title = `关于 · ${SITE.tagline} | ${SITE.name}`;
 const description =
-  'WorkerHub 是什么、官方项目与第三方收录项目的区别、三级验证等级（官方 / 已验证 / 已收录）的定义与免责声明，以及作者异议与下架通道。';
+  'WorkerHub 是什么、自研项目与第三方收录项目的区别、三级验证等级（自研 / 已验证 / 已收录）的定义与免责声明，以及作者异议与下架通道。';
 ---
 
 <BaseLayout title={title} description={description} canonicalPath="/about/">
@@ -35,7 +35,7 @@ const description =
     <div class="mt-6 space-y-4 text-sm leading-7">
       <p>
         WorkerHub 是 Cloudflare Workers 生态的中文精选应用目录：既收录 WorkerHub
-        官方自研项目，也收录经审核把关的第三方开源项目。我们不托管任何项目、不代跑任何项目，
+        自研项目，也收录经审核把关的第三方开源项目。我们不托管任何项目、不代跑任何项目，
         也没有站内一键部署执行器——「部署到自己的账户」一律通过目标仓库的 Deploy Button、GitHub
         Actions 或其部署文档完成。
       </p>
@@ -50,19 +50,19 @@ const description =
       </p>
     </div>
 
-    <h2 class="mt-10 text-xl font-semibold tracking-tight">官方项目与第三方项目</h2>
+    <h2 class="mt-10 text-xl font-semibold tracking-tight">自研项目与第三方项目</h2>
     <div class="mt-4 grid gap-4 sm:grid-cols-2">
       <div class="rounded-xl border border-border bg-card p-4">
         <Badge
           variant="outline"
           className="border-tier-official-border bg-tier-official-bg text-tier-official-fg"
         >
-          官方
+          自研
         </Badge>
-        <h3 class="mt-3 font-semibold">官方项目</h3>
+        <h3 class="mt-3 font-semibold">自研项目</h3>
         <p class="mt-1 text-sm leading-6 text-muted-foreground">
           WorkerHub 自研、自己维护与部署的项目，仓库在 GitHub 的 WorkerHub
-          组织下。官方项目在任何列表中恒定带金色「官方」徽章并可置顶。
+          组织下。自研项目在任何列表中恒定带金色「自研」徽章并可置顶。
         </p>
       </div>
       <div class="rounded-xl border border-border bg-card p-4">

@@ -113,7 +113,7 @@ export const TIER_META: Record<
   { label: string; description: string; badgeClassName: string }
 > = {
   official: {
-    label: '官方',
+    label: '自研',
     description: 'WorkerHub 自研项目，由 WorkerHub 团队维护。',
     badgeClassName: 'bg-tier-official-bg text-tier-official-fg border-tier-official-border',
   },
@@ -156,7 +156,7 @@ export const FREE_TIER_META: Record<
 };
 
 export const SOURCE_LABELS: Record<ProjectSource, string> = {
-  official: '官方项目',
+  official: '自研项目',
   'third-party': '第三方项目',
 };
 
@@ -262,7 +262,7 @@ export const VALID_FILTER_VALUES: Record<
 
 /** §8.2 排序键；默认排序 = 官方置顶 → 精选 → 收录日期倒序 */
 export const SORT_OPTIONS = [
-  { value: 'default', label: '默认（官方置顶 → 精选 → 收录日期）' },
+  { value: 'default', label: '默认（自研置顶 → 精选 → 收录日期）' },
   { value: 'stars', label: 'star 数降序' },
   { value: 'updated', label: '最近更新' },
   { value: 'name', label: '名称' },
