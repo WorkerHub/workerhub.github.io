@@ -1,6 +1,6 @@
 # 向 WorkerHub 投稿收录
 
-WorkerHub（hub）是 Cloudflare Workers 生态的中文精选应用目录：官方自研项目 + 经收录把关的第三方开源项目，每个项目都标清部署方式、所需资源与验证等级。
+WorkerHub（hub）是 Cloudflare Workers 生态的中文精选应用目录：自研项目 + 经收录把关的第三方开源项目，每个项目都标清部署方式、所需资源与验证等级。
 
 这份文件是投稿规则的**唯一真源**：站点的 `/submit/` 页面在构建时直接引入本文件渲染，页面与本文不得分叉——要改规则，改这里，不要改页面。数据校验 CI 的每一条规则也都与本文一一对应（见第 8 节）。
 
@@ -35,7 +35,7 @@ WorkerHub（hub）是 Cloudflare Workers 生态的中文精选应用目录：官
 | --- | -------------------------------------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | 1   | **开源且许可证明确**                         | 仓库根目录有 LICENSE 文件，且 GitHub 能识别出许可证类型                                            | 许可证文件链接（如 `.../blob/main/LICENSE`）                               |
 | 2   | **真实可部署在 Cloudflare Workers 或 Pages** | 有 `wrangler.toml`/`wrangler.json(c)`、Pages 配置，或明确的部署文档；仅「理论上能跑」不算          | 配置文件路径 / 部署文档章节链接                                            |
-| 3   | **近 12 个月内有代码更新**                   | 构建时自动字段 `pushed_at` 判定，无需你手写                                                        | 无需提供（构建自动判定）。官方特批的老牌稳定项目在 PR 说明里写理由后可豁免 |
+| 3   | **近 12 个月内有代码更新**                   | 构建时自动字段 `pushed_at` 判定，无需你手写                                                        | 无需提供（构建自动判定）。自研特批的老牌稳定项目在 PR 说明里写理由后可豁免 |
 | 4   | **部署步骤可复现**                           | README 或文档含完整部署章节（资源创建 → 绑定 → 变量 → 部署 → 首次初始化）                          | 部署章节链接 + 你自己跑通的步骤摘要                                        |
 | 5   | **免费层可跑，或付费要求写在明处**           | 数据字段 `free_tier` / `pricing_note` 与仓库文档一致；免费层受限的具体限制要在 `pricing_note` 写明 | 文档中价格/免费层限制说明的链接                                            |
 
@@ -50,7 +50,7 @@ WorkerHub（hub）是 Cloudflare Workers 生态的中文精选应用目录：官
 
 | 等级       | 徽章 | 含义                                                                | 取得方式                                                                                                    |
 | ---------- | ---- | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| **官方**   | 金色 | WorkerHub 自研项目                                                  | `source: official` 时自动取得（第三方条目不能用这一级）                                                     |
+| **自研**   | 金色 | WorkerHub 自研项目                                                  | `source: official` 时自动取得（第三方条目不能用这一级）                                                     |
 | **已验证** | 绿色 | 本站维护者按项目文档**实际完成过一次部署**，并留有记录              | 在数据 PR 中附 `verified_at`（验证日期）与 `verified_note_url`（记录链接：issue/PR/文档），经评审合入后生效 |
 | **已收录** | 灰色 | 仅通过第 2 节五条门槛审核，**未做部署实测**（第三方条目的默认等级） | 无需额外字段：`tier: listed`                                                                                |
 
@@ -81,7 +81,7 @@ WorkerHub（hub）是 Cloudflare Workers 生态的中文精选应用目录：官
 | ------------------- | ----------- | -------- | --------------------------------------------------------------------------------------------- |
 | `slug`              | string      | ✓        | 全站唯一，`^[a-z0-9-]+$`，与文件名一致                                                        |
 | `name`              | string      | ✓        | 展示名：用项目官方名，不自行翻译改名                                                          |
-| `repo`              | string      | ✓        | GitHub `owner/repo`；官方项目 owner 恒为 `WorkerHub`；**指向上游原仓库**，不要指向组织内 fork |
+| `repo`              | string      | ✓        | GitHub `owner/repo`；自研项目 owner 恒为 `WorkerHub`；**指向上游原仓库**，不要指向组织内 fork |
 | `source`            | enum        | ✓        | `official` / `third-party`                                                                    |
 | `tagline_zh`        | string      | ✓        | 中文一句话介绍，≤40 字，人工撰写，不要机翻仓库描述                                            |
 | `description_zh`    | string      | ✓        | 中文长介绍（详情页用），2–4 句（以 `。！？` 计句）                                            |
@@ -89,7 +89,7 @@ WorkerHub（hub）是 Cloudflare Workers 生态的中文精选应用目录：官
 | `features`          | string[]    | ✓        | 特性 3–5 条（详情页列表）；卡片只显示 tagline                                                 |
 | `category`          | enum        | ✓        | 主分类，取值见 4.4                                                                            |
 | `tags`              | string[]    | ✓        | 自由标签 ≤5 个，不得重复                                                                      |
-| `homepage`          | string(url) | ?        | 项目官网 / 在线演示站（官方项目填各自 `oneboy.app` 域名）；**演示站不可达会被 CI 硬拦**       |
+| `homepage`          | string(url) | ?        | 项目官网 / 在线演示站（自研项目填各自 `oneboy.app` 域名）；**演示站不可达会被 CI 硬拦**       |
 | `docs_url`          | string(url) | ?        | 部署/使用文档链接；缺省时页面取仓库 README                                                    |
 | `deploy`            | object      | ✓        | 部署信息，见 4.3                                                                              |
 | `resources`         | enum[]      | ✓        | 部署所需 Cloudflare 资源，≥1 个且不重复，见 4.5                                               |
@@ -102,7 +102,7 @@ WorkerHub（hub）是 Cloudflare Workers 生态的中文精选应用目录：官
 | `screenshot`        | string      | ?        | `public/screenshots/<slug>.webp`；不填则走前端回退链，见第 6 节                               |
 | `featured`          | bool        | ?        | 是否进首页精选推荐位（**仅第三方**，默认 `false`）                                            |
 | `added_at`          | date        | ✓        | 收录日期 `YYYY-MM-DD`，「最新收录」排序依据                                                   |
-| `status`            | enum        | ?        | `active`（默认）/ `coming-soon`（仅官方预告位）/ `delisted`（下架保留记录）                   |
+| `status`            | enum        | ?        | `active`（默认）/ `coming-soon`（仅自研预告位）/ `delisted`（下架保留记录）                   |
 
 **不要手写这些字段**（GitHub API 自动抓取，写进数据文件会直接报错）：`stars` / `stargazers_count`、`forks` / `forks_count`、`language`、`license`、`pushed_at`、`archived`、`latest_release` / `release`、`open_graph_image`。
 
@@ -201,7 +201,7 @@ free_tier: partial
 pricing_note: 免费层每日 10 万次请求，超过需 Workers Paid（$5/月起）。
 ```
 
-如果你是替官方项目补录（维护者），`source: official`、`repo` 的 owner 必须是 `WorkerHub`、`tier: official`。
+如果你是替自研项目补录（维护者），`source: official`、`repo` 的 owner 必须是 `WorkerHub`、`tier: official`。
 
 本地自检（可选，需要 Node 24 + pnpm）：
 
@@ -209,7 +209,7 @@ pricing_note: 免费层每日 10 万次请求，超过需 Workers Paid（$5/月�
 pnpm install
 pnpm validate:data        # schema、枚举、slug 与文件名一致、slug/repo 查重
 pnpm check:repos          # repo 存在且为 public（调 GitHub API）
-pnpm check:links          # 外链可达性（官方与演示站链接失败会硬拦）
+pnpm check:links          # 外链可达性（自研与演示站链接失败会硬拦）
 pnpm check:screenshots    # 截图规格
 ```
 
@@ -240,7 +240,7 @@ pnpm check:screenshots    # 截图规格
 
 - 一个 PR 一个项目，方便评审与回滚。
 - 更新既有条目（改名、迁移、部署方式变化、免费层变化）走同样的 PR 流程，改对应 YAML 即可。
-- 官方新项目上架也走同一流程的数据 PR，不开后门。
+- 自研新项目上架也走同一流程的数据 PR，不开后门。
 - 不要手写 GitHub 自动字段（第 4.2 节末尾清单）。
 - 收录第三方项目时 `repo` 一律指向上游原仓库，不要指向任何 fork 副本（包括 WorkerHub 组织内用于跟踪的 fork）。
 
@@ -248,7 +248,7 @@ pnpm check:screenshots    # 截图规格
 
 ## 8. CI 会检查什么（硬拦 vs 仅警告）
 
-投稿 PR 与官方数据 PR 适用完全相同的校验管线。
+投稿 PR 与自研数据 PR 适用完全相同的校验管线。
 
 | 检查项                                                     | 规则               | 失败后果                                       |
 | ---------------------------------------------------------- | ------------------ | ---------------------------------------------- |
@@ -259,7 +259,7 @@ pnpm check:screenshots    # 截图规格
 | `tier: verified` 的 `verified_at` + `verified_note_url`    | 见第 3 节          | **失败**                                       |
 | `free_tier != yes` 时 `pricing_note`                       | 见 4.2             | **失败**                                       |
 | 外链可达性（`docs_url`、`deploy.url`、`deploy.guide_url`） | HTTP 探测          | **警告**（不硬拦，评审人人工确认）             |
-| 官方项目的全部外链、任何项目的 `homepage`（演示站）        | HTTP 探测          | **失败**                                       |
+| 自研项目的全部外链、任何项目的 `homepage`（演示站）        | HTTP 探测          | **失败**                                       |
 | 截图规格（webp、宽 ≥1200px、≤300KB）                       | 见第 6 节          | **失败**                                       |
 | 投稿 PR 变更范围                                           | 见第 7 节第 2 步   | **失败**                                       |
 
