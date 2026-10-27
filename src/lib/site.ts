@@ -9,7 +9,7 @@ export const SITE = {
   url: 'https://hub.oneboy.app',
   title: 'WorkerHub · Cloudflare Workers 中文精选应用目录',
   description:
-    '汇集可自部署的 Cloudflare Workers 应用：官方自研项目与经收录把关的第三方开源项目，标清部署方式、所需资源、难度与验证等级，直达仓库与部署入口。',
+    '汇集可自部署的 Cloudflare Workers 应用：自研项目与经收录把关的第三方开源项目，标清部署方式、所需资源、难度与验证等级，直达仓库与部署入口。',
   tagline: 'Cloudflare Workers 生态的中文精选应用目录',
   githubOrg: 'https://github.com/WorkerHub',
   repo: 'https://github.com/WorkerHub/workerhub.github.io',
