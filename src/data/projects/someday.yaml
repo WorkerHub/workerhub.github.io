@@ -1,6 +1,6 @@
-slug: post
+slug: someday
 name: 时光邮局
-repo: WorkerHub/post
+repo: WorkerHub/someday
 source: official
 tagline_zh: 写给未来的信：定时投递、多收件人、公开信墙
 description_zh: >-
@@ -17,11 +17,11 @@ tags:
   - 写信
   - 定时投递
   - 邮件
-homepage: https://post.oneboy.app
-docs_url: https://github.com/WorkerHub/post#部署
+homepage: https://someday.oneboy.app
+docs_url: https://github.com/WorkerHub/someday#部署
 deploy:
   method: github-actions
-  guide_url: https://github.com/WorkerHub/post#部署
+  guide_url: https://github.com/WorkerHub/someday#部署
 resources:
   - d1
   - kv
