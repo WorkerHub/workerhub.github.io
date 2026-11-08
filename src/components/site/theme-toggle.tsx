@@ -1,37 +1,47 @@
 /**
- * 主题三档切换（SPEC §3B / §8.3）：亮 / 暗 / 自动，默认自动。
+ * 主题三档单击循环切换：自动 → 亮色 → 暗色 → 自动。
  *
  * - 偏好只存浏览器本地（localStorage `hub-theme`），本站无登录、无后端。
  * - 首屏防闪烁由 BaseLayout `<head>` 里的内联脚本完成（先于绘制应用 class）；
  *   本 island 只负责交互与「自动档跟随系统实时变化」。
- * - 三段用 shadcn/ui DropdownMenu 单选组，键盘可操作。
+ * - 单击图标按钮直接前进一档，无下拉菜单与浮层；Enter / Space 原生键盘支持。
  */
 import { useEffect, useState } from 'react';
 import { Monitor, Moon, Sun } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 export const THEME_STORAGE_KEY = 'hub-theme';
 export type ThemeMode = 'system' | 'light' | 'dark';
 
-const MODES: { value: ThemeMode; label: string; icon: typeof Sun }[] = [
-  { value: 'system', label: '自动（跟随系统）', icon: Monitor },
-  { value: 'light', label: '亮色', icon: Sun },
-  { value: 'dark', label: '暗色', icon: Moon },
-];
+export const NEXT_THEME_MODE: Record<ThemeMode, ThemeMode> = {
+  system: 'light',
+  light: 'dark',
+  dark: 'system',
+};
 
-const FALLBACK_MODE = { value: 'system' as ThemeMode, label: '自动（跟随系统）', icon: Monitor };
+export const THEME_LABELS: Record<ThemeMode, string> = {
+  system: '自动',
+  light: '亮色',
+  dark: '暗色',
+};
 
-function readStoredMode(): ThemeMode {
+export const THEME_ICONS: Record<ThemeMode, typeof Sun> = {
+  system: Monitor,
+  light: Sun,
+  dark: Moon,
+};
+
+export function getNextMode(mode: ThemeMode): ThemeMode {
+  return NEXT_THEME_MODE[mode] ?? 'system';
+}
+
+export function getThemeAriaLabel(currentMode: ThemeMode): string {
+  const nextMode = getNextMode(currentMode);
+  return `主题：${THEME_LABELS[currentMode]}，点击切换到${THEME_LABELS[nextMode]}`;
+}
+
+export function readStoredMode(): ThemeMode {
   try {
     const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
     if (stored === 'light' || stored === 'dark' || stored === 'system') return stored;
@@ -71,8 +81,8 @@ export default function ThemeToggle() {
     return () => media.removeEventListener('change', onChange);
   }, [mode]);
 
-  const handleChange = (value: string) => {
-    const next = (value === 'light' || value === 'dark' ? value : 'system') as ThemeMode;
+  const handleToggle = () => {
+    const next = getNextMode(mode);
     setMode(next);
     try {
       window.localStorage.setItem(THEME_STORAGE_KEY, next);
@@ -82,31 +92,20 @@ export default function ThemeToggle() {
     applyTheme(next);
   };
 
-  const current = MODES.find((item) => item.value === mode) ?? FALLBACK_MODE;
-  const Icon = current.icon;
+  const currentMode = mode in NEXT_THEME_MODE ? mode : 'system';
+  const Icon = THEME_ICONS[currentMode];
+  const label = getThemeAriaLabel(currentMode);
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={`主题：${current.label}`} title="切换主题">
-          <Icon aria-hidden="true" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuLabel>主题</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuRadioGroup value={mode} onValueChange={handleChange}>
-          {MODES.map((item) => {
-            const ItemIcon = item.icon;
-            return (
-              <DropdownMenuRadioItem key={item.value} value={item.value}>
-                <ItemIcon aria-hidden="true" />
-                {item.label}
-              </DropdownMenuRadioItem>
-            );
-          })}
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      onClick={handleToggle}
+      aria-label={label}
+      title={label}
+    >
+      <Icon aria-hidden="true" />
+    </Button>
   );
 }
