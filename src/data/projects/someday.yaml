@@ -17,7 +17,6 @@ tags:
   - 写信
   - 定时投递
   - 邮件
-homepage: https://someday.oneboy.app
 docs_url: https://github.com/WorkerHub/someday#部署
 deploy:
   method: github-actions

@@ -7,7 +7,6 @@ description_zh: >-
   完全运行在 Cloudflare Workers 上的自部署团队聊天系统：实时消息、公开/私有频道与私信、文件与语音消息，
   并支持 Telegram 双向桥接和两个独立部署站点共享同一群的跨实例互联。新消息正文与附件使用 AES-256-GCM
   服务端静态加密，应用与数据资源都落在自己的 Cloudflare 账号下，由 GitHub Actions 自动部署与更新。
-  上游的在线演示站是纯前端界面模拟（API、WebSocket、文件上传均在浏览器内存中模拟，无真实后端）。
 features:
   - 实时消息、公开/私有频道与私信，附件存 R2、会话状态存 KV
   - Telegram 双向桥接：文字、图片、视频、语音、文件双向同步，TG 成员无需注册
@@ -20,7 +19,6 @@ tags:
   - 即时通讯
   - Telegram
   - 加密
-homepage: https://echat.azora.top
 docs_url: https://echat.azora.top/guide/getting-started.html
 deploy:
   method: github-actions

@@ -120,15 +120,15 @@ jobs:
           fi
           echo "repo 核验演练通过：不存在的仓库被拦下"
 
-      - name: 演练 4｜第三方外链失败只警告，官方/演示站失败硬拦（§7）
+      - name: 演练 4｜第三方外链失败只警告，自研项目外链失败硬拦（§7）
         run: |
           HUB_PROJECTS_DIR=tests/fixtures/submission/links/third-party pnpm check:links
           echo "第三方外链失败仅警告：CI 未失败，符合 §7"
           if HUB_PROJECTS_DIR=tests/fixtures/submission/links/official pnpm check:links; then
-            echo "::error::官方/演示站外链失败竟然放行了，§7 硬拦失效"
+            echo "::error::自研项目外链失败竟然放行了，§7 硬拦失效"
             exit 1
           fi
-          echo "官方/演示站外链失败硬拦：符合 §7"
+          echo "自研项目外链失败硬拦：符合 §7"
 
       - name: 演练 5｜不合规截图必须让 CI 失败并逐条点名（§7）
         run: |

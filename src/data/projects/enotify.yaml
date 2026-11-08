@@ -19,7 +19,6 @@ tags:
   - 通知
   - 订阅管理
   - 多渠道
-homepage: https://enotify.oneboy.app
 docs_url: https://github.com/WorkerHub/eNotify#部署指南
 deploy:
   method: github-actions

@@ -2,13 +2,13 @@
  * 投稿数据的三类必检项（SPEC §7「CI 自动校验」，投稿 PR 与官方数据 PR 同等适用）：
  *
  *   1. `repo` 真实存在且为 public（GitHub REST API 核验）
- *   2. 外链可达性（homepage / docs_url / deploy.url / deploy.guide_url）
+ *   2. 外链可达性（docs_url / deploy.url / deploy.guide_url）
  *   3. 截图规格（webp、宽 ≥1200px、体积 ≤300KB）
  *
  * 严重级别严格照抄 §7 原文：
  *   - `repo` 不存在 / 私有 / 无法核验 → **硬拦**（error）
  *   - 外链失败 → **默认只警告**，由评审人人工确认；
- *     但「官方项目的全部外链」与「任何项目的演示站（homepage）」失败 → **硬拦**（error）
+ *     但「官方项目的全部外链」失败 → **硬拦**（error）
  *   - 例外（返工口径，见 ONE-449）：外链返回 **HTTP 403** 时一律降级为 warning。
  *     CDN（Cloudflare Pages 等）的 bot 防护会拒绝 CI runner 出口 IP，403 说明站点在线、
  *     只是不许探针访问，不构成「不可达」结论；输出保留站点名与状态码供人眼复核。
@@ -228,17 +228,16 @@ export async function checkRepos(
 // 2. 外链可达性（§7）
 // ---------------------------------------------------------------------------
 
-export type LinkField = 'homepage' | 'docs_url' | 'deploy.url' | 'deploy.guide_url';
+export type LinkField = 'docs_url' | 'deploy.url' | 'deploy.guide_url';
 
 export interface ProjectLink {
   field: LinkField;
   url: string;
 }
 
-/** 该项目的全部外链（§7 列举：homepage / docs / deploy url） */
+/** 该项目的全部外链（§7 列举：docs / deploy url） */
 export function collectLinks(data: ProjectInput): ProjectLink[] {
   const links: ProjectLink[] = [];
-  if (data.homepage) links.push({ field: 'homepage', url: data.homepage });
   if (data.docs_url) links.push({ field: 'docs_url', url: data.docs_url });
   if (data.deploy.url) links.push({ field: 'deploy.url', url: data.deploy.url });
   if (data.deploy.guide_url) links.push({ field: 'deploy.guide_url', url: data.deploy.guide_url });
@@ -247,13 +246,13 @@ export function collectLinks(data: ProjectInput): ProjectLink[] {
 
 /**
  * 外链失败时的严重级别（§7 原文）：
- * 「失败给 warning 不硬拦（评审人人工确认）；官方项目与演示站链接失败则硬拦」。
- * 即：`source=official` 的任何外链、以及任何项目的 `homepage`（官网/演示站）→ error。
+ * 「失败给 warning 不硬拦（评审人人工确认）；官方项目链接失败则硬拦」。
+ * 即：`source=official` 的任何外链 → error，第三方 → warning。
  *
  * 注意：这只是基础分级；HTTP 403（bot 防护）的例外由 `resolveLinkFailureSeverity` 叠加。
  */
-export const linkFailureSeverity = (data: ProjectInput, field: LinkField): Severity =>
-  data.source === 'official' || field === 'homepage' ? 'error' : 'warning';
+export const linkFailureSeverity = (data: ProjectInput, _field: LinkField): Severity =>
+  data.source === 'official' ? 'error' : 'warning';
 
 export interface LinkProbeResult {
   url: string;

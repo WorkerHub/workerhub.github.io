@@ -89,7 +89,6 @@ WorkerHub（hub）是 Cloudflare Workers 生态的中文精选应用目录：自
 | `features`          | string[]    | ✓        | 特性 3–5 条（详情页列表）；卡片只显示 tagline                                                 |
 | `category`          | enum        | ✓        | 主分类，取值见 4.4                                                                            |
 | `tags`              | string[]    | ✓        | 自由标签 ≤5 个，不得重复                                                                      |
-| `homepage`          | string(url) | ?        | 项目官网 / 在线演示站（自研项目填各自 `oneboy.app` 域名）；**演示站不可达会被 CI 硬拦**       |
 | `docs_url`          | string(url) | ?        | 部署/使用文档链接；缺省时页面取仓库 README                                                    |
 | `deploy`            | object      | ✓        | 部署信息，见 4.3                                                                              |
 | `resources`         | enum[]      | ✓        | 部署所需 Cloudflare 资源，≥1 个且不重复，见 4.5                                               |
@@ -177,7 +176,6 @@ tags:
   - 标签一
   - 标签二
 category: productivity
-homepage: https://example.com
 docs_url: https://github.com/your-org/your-project/blob/main/docs/deploy.md
 deploy:
   method: git-integration
@@ -209,7 +207,7 @@ pricing_note: 免费层每日 10 万次请求，超过需 Workers Paid（$5/月�
 pnpm install
 pnpm validate:data        # schema、枚举、slug 与文件名一致、slug/repo 查重
 pnpm check:repos          # repo 存在且为 public（调 GitHub API）
-pnpm check:links          # 外链可达性（自研与演示站链接失败会硬拦）
+pnpm check:links          # 外链可达性（自研项目外链失败会硬拦）
 pnpm check:screenshots    # 截图规格
 ```
 
@@ -259,7 +257,7 @@ pnpm check:screenshots    # 截图规格
 | `tier: verified` 的 `verified_at` + `verified_note_url`    | 见第 3 节          | **失败**                                       |
 | `free_tier != yes` 时 `pricing_note`                       | 见 4.2             | **失败**                                       |
 | 外链可达性（`docs_url`、`deploy.url`、`deploy.guide_url`） | HTTP 探测          | **警告**（不硬拦，评审人人工确认）             |
-| 自研项目的全部外链、任何项目的 `homepage`（演示站）        | HTTP 探测          | **失败**                                       |
+| 自研项目的全部外链                                         | HTTP 探测          | **失败**                                       |
 | 截图规格（webp、宽 ≥1200px、≤300KB）                       | 见第 6 节          | **失败**                                       |
 | 投稿 PR 变更范围                                           | 见第 7 节第 2 步   | **失败**                                       |
 

@@ -6,7 +6,7 @@ tagline_zh: 一个域名搭起自己的邮箱服务：多用户、附件收发�
 description_zh: >-
   基于 Cloudflare 的一站式邮箱服务平台：只要一个自有域名，就能像常规邮箱平台那样创建多个邮箱账号、收发并管理邮件，
   用 Workers 替掉常驻服务器。集成 Cloudflare Email 与 Resend 发信，附件存 R2、数据存 D1、缓存走 KV，
-  还能用 Workers AI 自动识别邮件验证码，并带管理员后台与开放 API。演示站 skymail.ink，部署步骤见 docs.skymail.ink。
+  还能用 Workers AI 自动识别邮件验证码，并带管理员后台与开放 API。部署步骤见 docs.skymail.ink。
 features:
   - 一个域名开多个邮箱账号，附件收发走 R2，邮件可转发到 Telegram 机器人或其他邮箱
   - 发信支持 Cloudflare Email 与 Resend 两种方式，可群发
@@ -19,7 +19,6 @@ tags:
   - 自托管
   - 邮件收发
   - Email Workers
-homepage: https://skymail.ink
 docs_url: https://docs.skymail.ink
 deploy:
   method: github-actions

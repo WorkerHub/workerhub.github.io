@@ -1,9 +1,9 @@
-# 演练夹具：官方项目的 homepage（演示站）不可达 → §7 要求 CI 硬拦
-slug: drill-official-broken-home
-name: Drill Official Broken Home
+# 演练夹具：自研条目的 docs_url 不可达 → §7 要求 CI 硬拦
+slug: drill-official-broken-docs
+name: Drill Official Broken Docs
 repo: WorkerHub/hub-drill-official
 source: official
-tagline_zh: 演练用官方条目，演示站地址不可达。
+tagline_zh: 演练用自研条目，文档地址不可达。
 description_zh: 第一条说明句。第二条说明句。
 features:
   - 特性一
@@ -12,7 +12,7 @@ features:
 tags:
   - drill
 category: notification
-homepage: http://127.0.0.1:9/demo
+docs_url: http://127.0.0.1:9/docs
 deploy:
   method: docs-only
 resources:

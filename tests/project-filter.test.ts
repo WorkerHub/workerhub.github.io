@@ -43,7 +43,6 @@ function view(overrides: Partial<ProjectView> = {}): ProjectView {
     featured: false,
     repo: 'demo/demo',
     repoUrl: 'https://github.com/demo/demo',
-    homepage: null,
     docsUrl: null,
     deploy: { method: 'github-actions', url: null, guideUrl: null },
     screenshot: null,
@@ -270,25 +269,16 @@ test('§8.2 已选数量与空状态判断', () => {
   );
 });
 
-test('§4.3 卡片主入口：官方优先在线演示，第三方一律仓库', () => {
-  const official = view({
-    source: 'official',
-    tier: 'official',
-    homepage: 'https://enotify.oneboy.app',
-  });
+test('§4.3 卡片主入口：自研与第三方一律「查看仓库」', () => {
+  const official = view({ source: 'official', tier: 'official' });
   assert.deepEqual(
     { href: primaryEntry(official).href, label: primaryEntry(official).label },
-    { href: 'https://enotify.oneboy.app', label: '在线演示' },
+    { href: 'https://github.com/demo/demo', label: '查看仓库' },
   );
 
-  // 官方没有线上实例（Zeta / hop / lx-music-server / waker）→ 仓库
-  const officialNoHome = view({ source: 'official', tier: 'official', homepage: null });
-  assert.equal(primaryEntry(officialNoHome).label, '查看仓库');
-  assert.equal(primaryEntry(officialNoHome).href, 'https://github.com/demo/demo');
-
-  // 第三方即使有 demo 也以仓库为主入口（§4.3）
-  const thirdParty = view({ homepage: 'https://demo.example.org' });
+  const thirdParty = view();
   assert.equal(primaryEntry(thirdParty).label, '查看仓库');
+  assert.equal(primaryEntry(thirdParty).href, 'https://github.com/demo/demo');
 });
 
 test('§5 详情页部署按钮：按 deploy.method 如实呈现，不承诺一键部署', () => {
@@ -324,14 +314,23 @@ test('§5 详情页部署按钮：按 deploy.method 如实呈现，不承诺一�
 });
 
 test('§5 详情页补充入口：与主按钮去重，空链接不出现', () => {
-  const project = view({
-    homepage: 'https://demo.example.org',
+  // 主按钮已用 docs（git-integration 指向 guide_url）→ 补充入口只剩仓库
+  const deduped = view({
     docsUrl: 'https://demo.example.org/docs',
     deploy: { method: 'git-integration', url: null, guideUrl: 'https://demo.example.org/docs' },
   });
-  const entries = secondaryEntries(project);
-  const hrefs = entries.map((entry) => entry.href);
-  assert.deepEqual(hrefs, ['https://demo.example.org', 'https://github.com/demo/demo']);
+  assert.deepEqual(
+    secondaryEntries(deduped).map((entry) => entry.href),
+    ['https://github.com/demo/demo'],
+  );
+
+  // docs 与主按钮不同 → docs + 仓库两条
+  const both = view({
+    docsUrl: 'https://demo.example.org/guide',
+    deploy: { method: 'git-integration', url: null, guideUrl: 'https://demo.example.org/docs' },
+  });
+  const hrefs = secondaryEntries(both).map((entry) => entry.href);
+  assert.deepEqual(hrefs, ['https://demo.example.org/guide', 'https://github.com/demo/demo']);
   assert.equal(new Set(hrefs).size, hrefs.length);
 });
 

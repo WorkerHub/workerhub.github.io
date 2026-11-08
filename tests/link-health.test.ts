@@ -28,7 +28,6 @@ const project = (slug: string, overrides: Partial<LinkSourceProject['data']> = {
     slug,
     data: {
       repo: `WorkerHub/${slug}`,
-      homepage: `https://${slug}.oneboy.app`,
       docs_url: `https://github.com/WorkerHub/${slug}#deploy`,
       deploy: {
         url: `https://deploy.workers.cloudflare.com/?url=https://github.com/WorkerHub/${slug}`,
@@ -46,12 +45,12 @@ const fetchStub = (statuses: Record<string, number>, fallback = 200): typeof fet
 test('collectProjectLinks 收集仓库入口与数据文件里的全部外链', () => {
   const refs = collectProjectLinks([
     project('enotify'),
-    project('waker', { homepage: undefined, docs_url: undefined, deploy: {} }),
+    project('waker', { docs_url: undefined, deploy: {} }),
   ]);
 
   assert.deepEqual(
     refs.map((ref) => `${ref.slug}:${ref.field}`),
-    ['enotify:repo', 'enotify:homepage', 'enotify:docs_url', 'enotify:deploy.url', 'waker:repo'],
+    ['enotify:repo', 'enotify:docs_url', 'enotify:deploy.url', 'waker:repo'],
   );
   assert.equal(refs[0]!.url, 'https://github.com/WorkerHub/enotify');
 });
@@ -66,8 +65,8 @@ test('同一 URL 只检查一次，并合并引用它的项目', async () => {
 
   const { report } = await runLinkHealth(
     [
-      { slug: 'alpha', field: 'homepage', url: shared },
-      { slug: 'beta', field: 'homepage', url: shared },
+      { slug: 'alpha', field: 'docs_url', url: shared },
+      { slug: 'beta', field: 'docs_url', url: shared },
     ],
     { fetchImpl },
   );
@@ -81,8 +80,8 @@ test('连续失败累计到阈值后点名，恢复可达后计数清零', async
   const bad = 'https://broken.example.org';
   const good = 'https://ok.example.org';
   const refs = [
-    { slug: 'alpha', field: 'homepage' as const, url: bad },
-    { slug: 'beta', field: 'homepage' as const, url: good },
+    { slug: 'alpha', field: 'docs_url' as const, url: bad },
+    { slug: 'beta', field: 'docs_url' as const, url: good },
   ];
 
   const first = await runLinkHealth(refs, {
@@ -115,7 +114,7 @@ test('连续失败累计到阈值后点名，恢复可达后计数清零', async
 test('反爬/限流类状态码归入「需人工确认」，不计入连续失败', async () => {
   const limited = 'https://protected.example.org';
   const { report, state } = await runLinkHealth(
-    [{ slug: 'alpha', field: 'homepage', url: limited }],
+    [{ slug: 'alpha', field: 'docs_url', url: limited }],
     {
       fetchImpl: fetchStub({ [limited]: 403 }),
       previous: emptyLinkHealthState(),
@@ -138,7 +137,7 @@ test('网络异常不会让巡检抛错，而是记为失败', async () => {
     throw new Error('ECONNREFUSED');
   }) as typeof fetch;
 
-  const { report } = await runLinkHealth([{ slug: 'alpha', field: 'homepage', url: down }], {
+  const { report } = await runLinkHealth([{ slug: 'alpha', field: 'docs_url', url: down }], {
     fetchImpl,
     retries: 0,
   });

@@ -4,7 +4,7 @@
  *
  * 用法：`pnpm health:links`
  *
- * 输入：`src/data/projects/*.yaml` 里的全部外链（仓库入口 + homepage / docs_url / deploy url / guide）。
+ * 输入：`src/data/projects/*.yaml` 里的全部外链（仓库入口 + docs_url / deploy url / guide）。
  * 输出：
  *   - `link-health-report.json`（默认，已在 .gitignore）—— 摘要报告，工作流写进 GitHub Actions summary
  *   - `link-health-state.json`（默认，已在 .gitignore）—— 连续失败计数，CI 侧用 actions/cache 持久化

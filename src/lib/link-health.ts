@@ -15,13 +15,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { z } from 'zod';
 
 /** 巡检的外链字段（§9.3「全部外链」：仓库入口 + 数据文件里的全部人工外链） */
-export const LINK_FIELDS = [
-  'repo',
-  'homepage',
-  'docs_url',
-  'deploy.url',
-  'deploy.guide_url',
-] as const;
+export const LINK_FIELDS = ['repo', 'docs_url', 'deploy.url', 'deploy.guide_url'] as const;
 export type LinkField = (typeof LINK_FIELDS)[number];
 
 export const LINK_HEALTH_STATE_VERSION = 1;
@@ -38,7 +32,6 @@ export interface LinkSourceProject {
   slug: string;
   data: {
     repo: string;
-    homepage?: string | undefined;
     docs_url?: string | undefined;
     deploy: { url?: string | undefined; guide_url?: string | undefined };
   };
@@ -56,7 +49,6 @@ export function collectProjectLinks(projects: readonly LinkSourceProject[]): Pro
   for (const project of projects) {
     const { data } = project;
     refs.push({ slug: project.slug, field: 'repo', url: `https://github.com/${data.repo}` });
-    if (data.homepage) refs.push({ slug: project.slug, field: 'homepage', url: data.homepage });
     if (data.docs_url) refs.push({ slug: project.slug, field: 'docs_url', url: data.docs_url });
     if (data.deploy.url)
       refs.push({ slug: project.slug, field: 'deploy.url', url: data.deploy.url });
