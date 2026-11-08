@@ -19,7 +19,6 @@ tags:
   - 状态页
   - 告警
   - 免费
-homepage: https://uptimeflare.pages.dev/
 docs_url: https://github.com/lyc8503/UptimeFlare/wiki/Setup
 deploy:
   method: github-actions

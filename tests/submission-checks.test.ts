@@ -150,12 +150,11 @@ test('repo 全部通过时不产出 findings', async () => {
 // 外链可达性与严重级别
 // ---------------------------------------------------------------------------
 
-test('§7 外链分级：官方项目全部硬拦、任何项目的演示站（homepage）硬拦、其余仅警告', () => {
+test('§7 外链分级：官方项目全部硬拦、第三方仅警告', () => {
   const thirdParty = baseProject();
   assert.equal(linkFailureSeverity(thirdParty, 'docs_url'), 'warning');
   assert.equal(linkFailureSeverity(thirdParty, 'deploy.url'), 'warning');
   assert.equal(linkFailureSeverity(thirdParty, 'deploy.guide_url'), 'warning');
-  assert.equal(linkFailureSeverity(thirdParty, 'homepage'), 'error');
 
   const official = baseProject({
     source: 'official',
@@ -163,13 +162,12 @@ test('§7 外链分级：官方项目全部硬拦、任何项目的演示站（h
     tier: 'official',
   });
   assert.equal(linkFailureSeverity(official, 'docs_url'), 'error');
-  assert.equal(linkFailureSeverity(official, 'homepage'), 'error');
+  assert.equal(linkFailureSeverity(official, 'deploy.url'), 'error');
 });
 
 test('§7 只收集实际填写的字段（含 deploy.url / guide_url）', () => {
   const links = collectLinks(
     baseProject({
-      homepage: 'https://example.com',
       docs_url: 'https://example.com/docs',
       deploy: {
         method: 'deploy-button',
@@ -180,7 +178,7 @@ test('§7 只收集实际填写的字段（含 deploy.url / guide_url）', () =>
   );
   assert.deepEqual(
     links.map((link) => link.field),
-    ['homepage', 'docs_url', 'deploy.url', 'deploy.guide_url'],
+    ['docs_url', 'deploy.url', 'deploy.guide_url'],
   );
   assert.deepEqual(collectLinks(baseProject()), []);
 });
@@ -217,17 +215,22 @@ test('§7 第三方外链失败 → warning（不阻断 CI）', async () => {
   assert.equal(summarize(findings).errors.length, 0);
 });
 
-test('§7 官方项目 / 演示站链接失败 → error（硬拦）', async () => {
+test('§7 官方项目外链失败 → error（硬拦）', async () => {
   const findings = await checkLinks(
     [
-      target({ slug: 'demo-official', homepage: 'https://demo.example.com' }),
       target({
-        slug: 'demo-official-2',
+        slug: 'demo-official',
         repo: 'WorkerHub/eNotify',
         source: 'official',
         tier: 'official',
         docs_url: 'https://docs.example.com',
-        homepage: undefined,
+      }),
+      target({
+        slug: 'demo-official-2',
+        repo: 'WorkerHub/someday',
+        source: 'official',
+        tier: 'official',
+        deploy: { method: 'github-actions', guide_url: 'https://guide.example.com' },
       }),
     ],
     {
@@ -239,7 +242,7 @@ test('§7 官方项目 / 演示站链接失败 → error（硬拦）', async () 
   assert.ok(findings.every((finding) => finding.severity === 'error'));
 });
 
-test('ONE-449 HTTP 403（bot 防护）→ 官方演示站也降级为 warning，不判 fail', async () => {
+test('ONE-449 HTTP 403（bot 防护）→ 官方外链也降级为 warning，不判 fail', async () => {
   const findings = await checkLinks(
     [
       target({
@@ -248,7 +251,7 @@ test('ONE-449 HTTP 403（bot 防护）→ 官方演示站也降级为 warning，
         repo: 'WorkerHub/eNotify',
         source: 'official',
         tier: 'official',
-        homepage: 'https://enotify.oneboy.app',
+        docs_url: 'https://enotify.example.com/docs',
       }),
       target({
         slug: 'post',
@@ -256,7 +259,7 @@ test('ONE-449 HTTP 403（bot 防护）→ 官方演示站也降级为 warning，
         repo: 'WorkerHub/post',
         source: 'official',
         tier: 'official',
-        homepage: 'https://post.oneboy.app',
+        docs_url: 'https://post.example.com/docs',
       }),
     ],
     {
@@ -276,9 +279,15 @@ test('ONE-449 HTTP 403（bot 防护）→ 官方演示站也降级为 warning，
 });
 
 test('ONE-449 403 例外只针对 403：真不可达与 404 依旧判 fail（fail 分支未被放宽）', async () => {
-  const officialHome = { slug: 'dead-home', homepage: 'https://dead.example.com' };
+  const officialDocs = {
+    slug: 'dead-docs',
+    repo: 'WorkerHub/eNotify',
+    source: 'official',
+    tier: 'official',
+    docs_url: 'https://dead.example.com/docs',
+  };
 
-  const refused = await checkLinks([target(officialHome)], {
+  const refused = await checkLinks([target(officialDocs)], {
     retries: 0,
     fetchImpl: async () => {
       throw new TypeError('fetch failed');
@@ -288,7 +297,7 @@ test('ONE-449 403 例外只针对 403：真不可达与 404 依旧判 fail（fai
   assert.equal(refused[0]!.severity, 'error');
   assert.match(refused[0]!.message, /请求失败/);
 
-  const notFound = await checkLinks([target(officialHome)], {
+  const notFound = await checkLinks([target(officialDocs)], {
     retries: 0,
     fetchImpl: async () => new Response('nope', { status: 404 }),
   });
@@ -296,7 +305,7 @@ test('ONE-449 403 例外只针对 403：真不可达与 404 依旧判 fail（fai
   assert.equal(notFound[0]!.severity, 'error');
   assert.match(notFound[0]!.message, /404/);
 
-  const serverError = await checkLinks([target(officialHome)], {
+  const serverError = await checkLinks([target(officialDocs)], {
     retries: 0,
     fetchImpl: async () => new Response('boom', { status: 500 }),
   });
@@ -314,14 +323,14 @@ test('resolveLinkFailureSeverity：仅 403 降级，其余沿用 §7 基础分�
   assert.equal(isBotProtectionStatus(404), false);
   assert.equal(isBotProtectionStatus(undefined), false);
 
-  assert.equal(resolveLinkFailureSeverity(official, 'homepage', 403), 'warning');
-  assert.equal(resolveLinkFailureSeverity(official, 'homepage', 404), 'error');
-  assert.equal(resolveLinkFailureSeverity(official, 'homepage'), 'error');
+  assert.equal(resolveLinkFailureSeverity(official, 'docs_url', 403), 'warning');
+  assert.equal(resolveLinkFailureSeverity(official, 'docs_url', 404), 'error');
+  assert.equal(resolveLinkFailureSeverity(official, 'docs_url'), 'error');
   assert.equal(resolveLinkFailureSeverity(baseProject(), 'docs_url', 403), 'warning');
   assert.equal(resolveLinkFailureSeverity(baseProject(), 'docs_url', 503), 'warning');
 
   // 基础分级本身不变（§7 原文口径）
-  assert.equal(linkFailureSeverity(official, 'homepage'), 'error');
+  assert.equal(linkFailureSeverity(official, 'docs_url'), 'error');
 });
 
 test('probeUrl：403 视为不可达但带上状态码，供上层降级判断', async () => {

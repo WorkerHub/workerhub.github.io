@@ -18,7 +18,7 @@
  *
  * 退出码：
  *   0  没有硬拦问题（允许存在 warning）
- *   1  有硬拦问题（§7：repo 不存在/私有、官方与演示站外链失败、截图不合规…）
+ *   1  有硬拦问题（§7：repo 不存在/私有、自研项目外链失败、截图不合规…）
  *     传入 --fail-on-warnings 时，warning 也会导致退出码 1
  */
 import { resolve } from 'node:path';

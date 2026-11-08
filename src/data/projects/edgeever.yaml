@@ -19,7 +19,6 @@ tags:
   - 知识库
   - 多端同步
   - AI
-homepage: https://demo.edgeever.org
 docs_url: https://github.com/tianma-if/edgeever/blob/main/docs/deploy-cloudflare-button.zh-CN.md
 deploy:
   method: git-integration

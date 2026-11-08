@@ -65,7 +65,7 @@ const links: LinkHealthReport = {
   rows: [
     {
       url: 'https://zeta.oneboy.app',
-      field: 'homepage',
+      field: 'docs_url',
       slugs: ['zeta'],
       outcome: 'failed',
       status: 502,

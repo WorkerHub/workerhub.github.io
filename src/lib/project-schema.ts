@@ -145,7 +145,6 @@ export const projectSchema = z
       .array(z.string().min(1))
       .max(5)
       .refine((v) => new Set(v).size === v.length, { message: 'tags 不得重复' }),
-    homepage: z.url().optional(),
     docs_url: z.url().optional(),
     deploy: deploySchema,
     resources: z

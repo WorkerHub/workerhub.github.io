@@ -36,7 +36,6 @@ const MANUAL_FIELDS = [
   'features',
   'category',
   'tags',
-  'homepage',
   'docs_url',
   'deploy',
   'resources',

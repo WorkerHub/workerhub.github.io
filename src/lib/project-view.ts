@@ -67,7 +67,6 @@ export function toProjectView({ data, meta }: ProjectWithMeta): ProjectView {
 
     repo: data.repo,
     repoUrl: `https://github.com/${data.repo}`,
-    homepage: data.homepage ?? null,
     docsUrl: data.docs_url ?? null,
     deploy: {
       method: data.deploy.method,

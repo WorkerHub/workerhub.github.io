@@ -195,7 +195,6 @@ export interface ProjectView {
 
   repo: string;
   repoUrl: string;
-  homepage: string | null;
   docsUrl: string | null;
   deploy: { method: DeployMethod; url: string | null; guideUrl: string | null };
 

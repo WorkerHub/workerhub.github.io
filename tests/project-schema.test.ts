@@ -170,6 +170,12 @@ test('§4.1 未知字段直接失败（防拼写错误静默丢字段）', () =>
   assert.match(issueMessages(result), /tagline/);
 });
 
+test('已下线的 homepage 字段被拒收（防被重新挂回）', () => {
+  const result = run({ ...baseProject(), homepage: 'https://example.com' });
+  assert.equal(result.ok, false, '数据文件里写 homepage 应当校验失败');
+  assertFieldFlagged(result, 'homepage');
+});
+
 test('§5 deploy.method 枚举与 Deploy Button URL 规范', () => {
   assertFieldFlagged(run({ ...baseProject(), deploy: { method: 'nope' } }), 'deploy');
 

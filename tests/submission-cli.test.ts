@@ -75,12 +75,12 @@ test('§7 第三方外链失败 → 警告不阻断（退出码 0）', () => {
   assert.match(result.output, /docs_url/);
 });
 
-test('§7 官方 / 演示站外链失败 → CLI 失败（硬拦）', () => {
+test('§7 官方外链失败 → CLI 失败（硬拦）', () => {
   const result = run(['--checks=links'], {
     HUB_PROJECTS_DIR: join(FIXTURES, 'submission', 'links', 'official'),
   });
   assert.equal(result.status, 1, result.output);
-  assert.match(result.output, /homepage/);
+  assert.match(result.output, /docs_url/);
 });
 
 test('§7 GitHub API 不可达 → repo 核验失败（无法核验也硬拦并提示重跑）', () => {
@@ -102,7 +102,7 @@ test('§7 --fail-on-warnings 把外链警告升级为失败（维护者本地复
   assert.match(result.output, /警告 2 项/);
 });
 
-test('ONE-449 官方演示站 403（bot 防护）→ CLI 退出码 0，日志可见站点名与 403', async () => {
+test('ONE-449 官方外链 403（bot 防护）→ CLI 退出码 0，日志可见站点名与 403', async () => {
   // 本地服务固定回 403，模拟 Cloudflare bot 防护对 CI runner 出口 IP 的拒绝
   const server = createServer((_request, response) => {
     response.writeHead(403, { 'content-type': 'text/html; charset=utf-8' });
@@ -121,7 +121,7 @@ test('ONE-449 官方演示站 403（bot 防护）→ CLI 退出码 0，日志可
         'name: Drill Bot Protected',
         'repo: WorkerHub/hub-drill-official',
         'source: official',
-        'tagline_zh: 演练用官方条目，演示站被 bot 防护拦截。',
+        'tagline_zh: 演练用自研条目，文档地址被 bot 防护拦截。',
         'description_zh: 第一条说明句。第二条说明句。',
         'features:',
         '  - 特性一',
@@ -130,7 +130,7 @@ test('ONE-449 官方演示站 403（bot 防护）→ CLI 退出码 0，日志可
         'tags:',
         '  - drill',
         'category: notification',
-        `homepage: http://127.0.0.1:${port}/demo`,
+        `docs_url: http://127.0.0.1:${port}/docs`,
         'deploy:',
         '  method: docs-only',
         'resources:',

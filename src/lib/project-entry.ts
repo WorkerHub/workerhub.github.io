@@ -2,7 +2,7 @@
  * 入口按钮的唯一真源（SPEC §4.3 卡片主入口 + §5 详情页按钮呈现）。
  *
  * 卡片与详情页都从这里取链接与文案，避免「同一项目在两个页面按钮不一致」。
- * 判定依据只有数据字段：第三方 = 仓库；官方 = 在线演示（有 homepage）或仓库；
+ * 判定依据只有数据字段：自研与第三方的主入口一律是仓库；
  * coming-soon（waker 预告位）= 不给部署入口，只给仓库。
  */
 import { DEPLOY_METHOD_META, type ProjectView } from './project-types';
@@ -10,7 +10,7 @@ import { DEPLOY_METHOD_META, type ProjectView } from './project-types';
 export interface EntryLink {
   href: string;
   label: string;
-  kind: 'repo' | 'demo' | 'deploy' | 'docs';
+  kind: 'repo' | 'deploy' | 'docs';
   /** 外部链接（新标签打开） */
   external: boolean;
 }
@@ -24,11 +24,8 @@ const link = (href: string, label: string, kind: EntryLink['kind']): EntryLink =
   external: isExternal(href),
 });
 
-/** 卡片主入口（§4.3）：官方=在线演示或仓库；第三方=仓库 */
+/** 卡片主入口（§4.3）：一律「查看仓库」 */
 export function primaryEntry(project: ProjectView): EntryLink {
-  if (project.source === 'official' && project.homepage) {
-    return link(project.homepage, '在线演示', 'demo');
-  }
   return link(project.repoUrl, '查看仓库', 'repo');
 }
 
@@ -52,10 +49,9 @@ export function deployAction(project: ProjectView): EntryLink {
   }
 }
 
-/** 详情页的补充入口：在线演示 / 部署文档 / 仓库（去重、去空） */
+/** 详情页的补充入口：部署文档 / 仓库（去重、去空） */
 export function secondaryEntries(project: ProjectView): EntryLink[] {
   const candidates: EntryLink[] = [];
-  if (project.homepage) candidates.push(link(project.homepage, '在线演示', 'demo'));
   if (project.docsUrl) candidates.push(link(project.docsUrl, '部署文档', 'docs'));
   candidates.push(link(project.repoUrl, 'GitHub 仓库', 'repo'));
 
