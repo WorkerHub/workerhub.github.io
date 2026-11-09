@@ -12,6 +12,8 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { z } from 'zod';
 
+import { SITE } from './site.js';
+
 export const META_CACHE_SCHEMA_VERSION = 1;
 export const DEFAULT_API_BASE = 'https://api.github.com';
 export const DEFAULT_TIMEOUT_MS = 8_000;
@@ -164,7 +166,7 @@ async function getJson(url: string, repo: string, options: FetchOptions): Promis
   const headers: Record<string, string> = {
     accept: 'application/vnd.github+json',
     'x-github-api-version': '2022-11-28',
-    'user-agent': 'workerhub-hub-build (+https://hub.oneboy.app)',
+    'user-agent': `workerhub-hub-build (+${SITE.url})`,
   };
   if (options.token) headers.authorization = `Bearer ${options.token}`;
 

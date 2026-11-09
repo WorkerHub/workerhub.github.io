@@ -22,6 +22,7 @@ import {
 } from '../src/lib/build-config.js';
 import { readMetaCache } from '../src/lib/github-meta.js';
 import { OG_IMAGE_PUBLIC_DIR, ogImageFileName } from '../src/lib/og-path.js';
+import { SITE } from '../src/lib/site.js';
 
 const PUBLIC_DIR = resolve('public');
 const OG_DIR = resolve(PUBLIC_DIR, OG_IMAGE_PUBLIC_DIR);
@@ -67,7 +68,7 @@ async function download(repo: string): Promise<OgOutcome> {
   const source =
     cache.repos[repo]?.openGraphImage ?? `https://opengraph.githubassets.com/1/${repo}`;
   const headers: Record<string, string> = {
-    'user-agent': 'workerhub-hub-build (+https://hub.oneboy.app)',
+    'user-agent': `workerhub-hub-build (+${SITE.url})`,
   };
   if (GITHUB_TOKEN) headers.authorization = `Bearer ${GITHUB_TOKEN}`;
 

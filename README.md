@@ -4,8 +4,8 @@ Cloudflare Workers 生态的中文精选应用目录：自研项目 + 经收录�
 
 ## 在线访问
 
-- 主站：<https://hub.oneboy.app>
-- 镜像：<https://workerhub.github.io>
+- 主站：<https://workerhub.github.io>
+- 副线：<https://hub.oneboy.app>
 
 ## 收录什么
 

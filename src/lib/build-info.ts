@@ -1,7 +1,7 @@
 /**
  * 版本号与构建时间（SPEC §0 / §12 第 8 条：页脚版本号由构建时注入，仓库源码里不写死）。
  *
- * 主站（Cloudflare Pages）与镜像（GitHub Pages）**共用本文件这一段取值逻辑**，
+ * 主站（GitHub Pages）与副线（Cloudflare Pages）**共用本文件这一段取值逻辑**，
  * 不各写一套（§12 第 10 条「双线同版」的前提）。回退链优先级固定为：
  *   ① `HUB_VERSION`          仅本地 / 特殊场景覆盖，生产**不**用它钉死版本
  *   ② `git describe --tags --always`
@@ -10,12 +10,12 @@
  *
  * ②→③ 这一跳是本文件存在的原因：CF Pages 的 Git 集成用浅克隆（shallow clone），
  * 构建环境里没有 tag 也没有完整历史，`git describe` 必然失败；而 CF Pages 自身
- * 提供 `CF_PAGES_COMMIT_SHA`（本次构建对应的完整提交 SHA），截 7 位后与镜像侧
+ * 提供 `CF_PAGES_COMMIT_SHA`（本次构建对应的完整提交 SHA），截 7 位后与 GitHub Pages 侧
  * `git describe --always` 的无 tag 输出形态一致（短 SHA），两侧页脚即可比对。
  *
  * 刻意**不带 `--dirty`**（双线部署需要）：构建本身会改写自动字段缓存
  * `src/data/cache/github-meta.json`，带 `--dirty` 会让每次 CI 构建都得到
- * `<sha>-dirty`，主站与镜像两侧、两次构建之间都无法比较，页脚也难看。
+ * `<sha>-dirty`，主站与副线两侧、两次构建之间都无法比较，页脚也难看。
  * 版本号只标识「哪一次提交的源码」，构建产物差异由构建时间承担。
  */
 import { execFileSync } from 'node:child_process';

@@ -4,7 +4,7 @@ WorkerHub（hub）是 Cloudflare Workers 生态的中文精选应用目录：自
 
 这份文件是投稿规则的**唯一真源**：站点的 `/submit/` 页面在构建时直接引入本文件渲染，页面与本文不得分叉——要改规则，改这里，不要改页面。数据校验 CI 的每一条规则也都与本文一一对应（见第 8 节）。
 
-- 站点主域名：`https://hub.oneboy.app`
+- 站点主域名：`https://workerhub.github.io`
 - 仓库：`https://github.com/WorkerHub/workerhub.github.io`
 - 投稿方式：**向本仓库提 Pull Request**（没有站内表单、没有后台、没有账号系统）
 - 维护者联系方式：GitHub 组织页 <https://github.com/WorkerHub>

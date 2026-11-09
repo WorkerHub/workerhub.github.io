@@ -14,6 +14,8 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { z } from 'zod';
 
+import { SITE } from './site.js';
+
 /** 巡检的外链字段（§9.3「全部外链」：仓库入口 + 数据文件里的全部人工外链） */
 export const LINK_FIELDS = ['repo', 'docs_url', 'deploy.url', 'deploy.guide_url'] as const;
 export type LinkField = (typeof LINK_FIELDS)[number];
@@ -25,7 +27,7 @@ export const DEFAULT_TIMEOUT_MS = 10_000;
 export const DEFAULT_RETRIES = 1;
 export const DEFAULT_CONCURRENCY = 6;
 
-const USER_AGENT = 'workerhub-hub-link-health (+https://hub.oneboy.app)';
+const USER_AGENT = `workerhub-hub-link-health (+${SITE.url})`;
 
 /** 巡检输入所需的最小项目形状（`ProjectInput` 满足它） */
 export interface LinkSourceProject {

@@ -14,6 +14,12 @@ import {
   type MetaReport,
 } from '../src/lib/build-summary.js';
 import type { LinkHealthReport } from '../src/lib/link-health.js';
+import { SITE } from '../src/lib/site.js';
+
+/** 期望的部署线标签从真源拼出（不在测试里写第二份域名） */
+const CANONICAL_HOST = new URL(SITE.url).host;
+const GITHUB_PAGES_LABEL = `GitHub Pages 主站（${CANONICAL_HOST}）`;
+const CLOUDFLARE_PAGES_LABEL = 'Cloudflare Pages 副线';
 
 const context: BuildSummaryContext = {
   event: 'schedule',
@@ -92,7 +98,7 @@ test('摘要含自动字段刷新结果与异常项目清单（§12 第 7 条）
     links,
     linksExpected: true,
     publishing: [
-      { side: 'github-pages', result: 'success', detail: '已发布镜像' },
+      { side: 'github-pages', result: 'success', detail: '已发布主站' },
       { side: 'cloudflare-pages', result: 'success', detail: 'deploy hook 已触发（HTTP 200）' },
     ],
   });
@@ -120,8 +126,15 @@ test('一侧失败时摘要逐侧标注并声明独立报错', () => {
     ],
   });
 
-  assert.match(summary, /GitHub Pages 镜像（workerhub\.github\.io） \| ❌ 失败/);
-  assert.match(summary, /Cloudflare Pages 主站（hub\.oneboy\.app） \| ✅ 成功/);
+  assert.ok(
+    summary.includes(`${GITHUB_PAGES_LABEL} | ❌ 失败`),
+    '摘要应把 GitHub Pages 标为主站（canonical）',
+  );
+  assert.ok(
+    summary.includes(`${CLOUDFLARE_PAGES_LABEL} | ✅ 成功`),
+    '摘要应把 Cloudflare 标为副线',
+  );
+  assert.match(summary, /双线发布：GitHub Pages 主站 \+ Cloudflare Pages 副线/);
   assert.match(summary, /独立报错/);
   assert.match(summary, /未调用 GitHub Pages 发布动作、未调用 Cloudflare deploy hook/);
 });

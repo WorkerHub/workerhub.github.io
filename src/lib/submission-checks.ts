@@ -21,6 +21,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { imageSize } from 'image-size';
 import type { ProjectInput } from './project-schema.js';
+import { SITE } from './site.js';
 
 /** §7 截图规格：webp、宽 ≥1200px、体积 ≤300KB */
 export const SCREENSHOT_MIN_WIDTH = 1200;
@@ -32,7 +33,7 @@ export const DEFAULT_LINK_CONCURRENCY = 6;
 /** CDN bot 防护拒绝 CI 探针时返回的状态码：不判「不可达」，降级为 warning */
 export const BOT_PROTECTION_STATUS = 403;
 export const DEFAULT_API_BASE = 'https://api.github.com';
-const USER_AGENT = 'workerhub-hub-ci (+https://hub.oneboy.app)';
+const USER_AGENT = `workerhub-hub-ci (+${SITE.url})`;
 
 export type CheckName = 'repos' | 'links' | 'screenshots';
 export type Severity = 'error' | 'warning';
