@@ -2,7 +2,7 @@
 /**
  * 全站基础布局：SEO/分享元数据、主题防闪烁、页头页脚、无障碍跳转。
  *
- * SPEC §10 硬性：canonical / og:url 恒写主域名 `https://hub.oneboy.app`，镜像侧也不按访问域名动态生成
+ * canonical / og:url 恒写主域名（`src/lib/site.ts` 的真源 `SITE.url`），副线侧也不按访问域名动态生成
  * —— 这里只从 `src/lib/site.ts` 的常量拼绝对地址，从不读 `Astro.url.host`。
  */
 import '../styles/global.css';

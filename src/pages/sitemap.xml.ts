@@ -1,6 +1,6 @@
 /**
  * sitemap.xml（SPEC §10）：构建时生成，含首页 + 列表/提交/关于 + 全部项目详情页 + 全部分类页；
- * 绝对地址一律写主域名 `https://hub.oneboy.app`（镜像站不按访问域名生成）。
+ * 绝对地址一律取真源 `SITE.url`（副线站也不按访问域名生成）。
  */
 import type { APIRoute } from 'astro';
 

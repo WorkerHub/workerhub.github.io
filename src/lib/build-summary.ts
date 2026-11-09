@@ -9,6 +9,7 @@
 import { z } from 'zod';
 
 import { linkHealthReportSchema, type LinkHealthReport } from './link-health.js';
+import { SITE } from './site.js';
 
 // ---------------------------------------------------------------------------
 // 输入：抓取报告（由 scripts/fetch-github-meta.ts 产出）
@@ -110,9 +111,12 @@ const table = (header: string[], rows: string[][]): string =>
     .concat(rows.map((row) => `| ${row.map(cell).join(' | ')} |`))
     .join('\n');
 
+/** canonical 主机名取自真源，摘要里不写第二份域名字面量 */
+const CANONICAL_HOST = new URL(SITE.url).host;
+
 const PUBLISH_LABELS: Record<PublishSide, string> = {
-  'github-pages': 'GitHub Pages 镜像（workerhub.github.io）',
-  'cloudflare-pages': 'Cloudflare Pages 主站（hub.oneboy.app）',
+  'github-pages': `GitHub Pages 主站（${CANONICAL_HOST}）`,
+  'cloudflare-pages': 'Cloudflare Pages 副线',
 };
 
 const RESULT_LABELS: Record<string, string> = {
@@ -314,7 +318,7 @@ export function renderBuildSummary(input: BuildSummaryInput): string {
   return [
     '## 双线重建摘要（hub）',
     '',
-    '同一提交 → 同一份 `dist/` 产物 → 双线发布：GitHub Pages 镜像 + Cloudflare Pages 主站（SPEC §0 / §8.1 / §9.2）。',
+    '同一提交 → 同一份 `dist/` 产物 → 双线发布：GitHub Pages 主站 + Cloudflare Pages 副线（SPEC §0 / §8.1 / §9.2）。',
     '',
     '### 本次运行',
     '',

@@ -1,4 +1,4 @@
-// Cloudflare Workers 静态资源部署配置（主站 hub.oneboy.app 走 Workers + assets）。
+// Cloudflare Workers 静态资源部署配置（副线 hub.oneboy.app 走 Workers + assets）。
 // 纯静态站点：构建产物 dist/ 直接作为 Static Assets 上传，无 bindings / Durable Objects / 数据库。
 // 冻结契约：Worker 名固定 hub；产物目录固定 ./dist（与 package.json 的 build 脚本输出一致）。
 {
