@@ -16,9 +16,7 @@ const year = new Date().getUTCFullYear();
   <div class="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[1.5fr_1fr_1fr]">
     <div class="space-y-2">
       <p class="text-sm font-semibold">WorkerHub</p>
-      <p class="max-w-sm text-sm leading-6 text-muted-foreground">
-        {SITE.tagline}。本站是纯静态站点：无登录、无后端接口、不采集账号数据。
-      </p>
+      <p class="max-w-sm text-sm leading-6 text-muted-foreground">{SITE.tagline}。</p>
       <p class="text-xs text-muted-foreground">
         {THIRD_PARTY_DISCLAIMER}，「已验证」仅代表验证日期当天的部署实测结论。
       </p>
@@ -73,11 +71,6 @@ const year = new Date().getUTCFullYear();
           >
             本站源码 / 投稿
             <ExternalLink aria-hidden="true" className="size-3" />
-          </a>
-        </li>
-        <li>
-          <a class="inline-flex items-center gap-1 hover:underline" href="/sitemap.xml">
-            sitemap.xml
           </a>
         </li>
       </ul>
